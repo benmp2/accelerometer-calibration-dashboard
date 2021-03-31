@@ -34,6 +34,8 @@ app = dash.Dash(__name__,
                 update_title='Loading...',
                 )
 
+server = app.server
+
 app.layout = html.Div([
     dcc.Upload(
         id='upload-data',
