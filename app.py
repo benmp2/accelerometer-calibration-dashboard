@@ -1,37 +1,129 @@
+import base64
+import datetime
+import io
+
 import dash
+from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+import dash_table
 
-# The global app object
-app = dash.Dash(__name__)
+import pandas as pd
+import utils
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 
-# The layout, including html, widgets and figures
-app.layout = html.Div(children=[
-    html.H1(children='Hello'),
-    html.Div(id='my-div', children='Your text will go here!'),
-    dcc.Input(id='my-id', value='initial value', type='text'),
-    dcc.Graph(
-        id='example-graph',
-        figure={
-            'data': [
-                {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'A'},
-                {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': 'B'},
-            ],
-            'layout': {
-                'title': 'Dash Data Visualization'
-            }
-        }
+def generate_chart(df):
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x = df.index,
+            y = df.mhp,
+            name = 'mhp',
+            showlegend = True
+        )
     )
+    return fig
+
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+app = dash.Dash(__name__,
+                external_stylesheets=external_stylesheets,
+                update_title='Loading...',
+                )
+
+app.layout = html.Div([
+    dcc.Upload(
+        id='upload-data',
+        children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select Files')
+        ]),
+        style={
+            'width': '100%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '0px'
+        },
+        # Allow multiple files to be uploaded
+        multiple=True
+    ),
+    # html.Div(id='output-data-upload'),
+    dcc.Loading(
+            id="loading-1",
+            type="circle",
+            style = {
+                'position': 'fixed',
+                'top': '50%',
+                'left': '50%'
+                },
+            children=html.Div(id='output-data-upload')
+        ),
 ])
 
-# A callback example
-@app.callback(
-    Output(component_id='my-div', component_property='children'),
-    [Input(component_id='my-id', component_property='value')]
-)
-def update_div(input_value):
-    return 'You entered "{}"'.format(input_value)
+
+def parse_contents(contents, filename, date):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # # Assume that the user uploaded a CSV file
+            # df = pd.read_csv(
+            #     io.StringIO(decoded.decode('utf-8')))
+            df = utils.generate_basic_df(io.StringIO(decoded.decode('utf-8')))
+            df = utils.add_features_to_df(df)
+            fig = generate_chart(df)
+            df = df.reset_index(drop=False)
+            
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(io.BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    return html.Div([
+        
+        html.Hr(),
+        
+        dcc.Tabs([
+            dcc.Tab(label='Charts', children=[
+                 html.Hr(),
+                 dcc.Graph(figure=fig)
+            ]),
+            dcc.Tab(label='Input data', children=[
+                html.Hr(),
+                # dash_table.DataTable(
+                #     data=df.head(5).to_dict('records'),
+                #     columns=[{'name': i, 'id': i} for i in df.columns],
+                #     editable=True,
+                # )
+            ])
+        ])        
+    ])
+
+
+@app.callback(Output('output-data-upload', 'children'),
+              Input('upload-data', 'contents'),
+              State('upload-data', 'filename'),
+              State('upload-data', 'last_modified'))
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
