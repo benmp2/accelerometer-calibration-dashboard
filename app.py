@@ -104,11 +104,11 @@ def parse_contents(contents, filename, date):
             ]),
             dcc.Tab(label='Input data', children=[
                 html.Hr(),
-                # dash_table.DataTable(
-                #     data=df.head(5).to_dict('records'),
-                #     columns=[{'name': i, 'id': i} for i in df.columns],
-                #     editable=True,
-                # )
+                dash_table.DataTable(
+                    data=df.head(5).to_dict('records'),
+                    columns=[{'name': i, 'id': i} for i in df.columns],
+                    editable=True,
+                )
             ])
         ])        
     ])
