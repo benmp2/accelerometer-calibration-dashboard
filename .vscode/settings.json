@@ -2,10 +2,4 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.terminal.activateEnvironment": true
-    // "json.schemas": [
-    //     {
-    //         "python.pythonPath": ".venv\\Scripts\\python",
-    //         // "python.terminal.activateEnvironment": true
-    //     }
-    // ]
 }
