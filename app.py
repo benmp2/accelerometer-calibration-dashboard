@@ -16,7 +16,7 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 test_calibration_df = None
-
+calibration_period = None
 
 def generate_chart(df: pd.DataFrame, feature_name: str) -> go.Figure:
 
@@ -86,7 +86,7 @@ app.layout = html.Div(
             # Allow multiple files to be uploaded
             multiple=True,
         ),
-        html.Div(id='output-data-upload'),
+        html.Div(id="output-data-upload"),
         # dcc.Loading(
         #     id="loading-1",
         #     type="circle",
@@ -110,16 +110,14 @@ def parse_contents(contents, filename, date):
             df = utils.generate_basic_df(io.StringIO(decoded.decode("utf-8")))
             df = utils.add_features_to_df(df)
             global test_calibration_df
-            test_calibration_df = df.copy().loc[
-                "2021-05-07 11:10:00":"2021-05-07 11:13:00"
-            ]
+            test_calibration_df = df.copy()
 
             fig_magnitude = generate_chart(df, feature_name="magnitude")
             fig_mhp = generate_chart(df, feature_name="mhp")
             fig_mhp_rangeselector = generate_chart_with_rangeselector(
                 df, feature_name="mhp"
             )
-            df = df.reset_index(drop=False)
+            # df = df.reset_index(drop=False)
 
         elif "xls" in filename:
             # Assume that the user uploaded an excel file
@@ -193,14 +191,16 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 )
 def click_button_call_mhpdt_calibration(n_clicks):
 
-    global test_calibration_df
-    calibration_json = utils.accelerations_csv_to_json(
-        test_calibration_df, json_attribute="downTimeCalibrationData", file_path=None
-    )
-
     if n_clicks is None:
         raise PreventUpdate
     else:
+        global test_calibration_df,calibration_period
+    
+        acceleration_data = test_calibration_df.copy().loc[calibration_period]
+        calibration_json = utils.accelerations_csv_to_json(
+            acceleration_data, json_attribute="downTimeCalibrationData", file_path=None
+        )
+
         r = requests.post(
             "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
             headers={"Content-Type": "application/json"},
@@ -221,14 +221,20 @@ def click_button_call_mhpdt_calibration(n_clicks):
     [Input("fig_with_rangeselector", "relayoutData")],
 )
 def update_slider_output_values(relayoutData):
-    
-    default_value = f'[{test_calibration_df.index[0]}:{test_calibration_df.index[-1]}]'
+
+    global calibration_period
+
+    default_value = f"[{test_calibration_df.index[0]}:{test_calibration_df.index[-1]}]"
+    calibration_period = slice(test_calibration_df.index[0],test_calibration_df.index[-1])
     if relayoutData:
         range_data = relayoutData.get("xaxis.range", default_value)
+        if range_data != default_value:
+            calibration_period = slice(range_data[0],range_data[1])
     else:
         range_data = default_value
 
     return 'You have selected "{}"'.format(range_data)
 
+
 if __name__ == "__main__":
-    app.run_server(debug=True)
+     app.run_server(debug=True)
