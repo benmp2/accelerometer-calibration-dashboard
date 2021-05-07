@@ -13,17 +13,16 @@ import utils
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-def generate_chart(df):
+def generate_chart(df: pd.DataFrame, feature_name: str) -> go.Figure:
 
     fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
+    fig.add_scatter(
             x = df.index,
-            y = df.mhp,
-            name = 'mhp',
+            y = df[feature_name],
+            name = feature_name,
             showlegend = True
         )
-    )
+    fig.update_layout(title=f"Acceleration's {feature_name} feature chart")
     return fig
 
 
@@ -82,7 +81,8 @@ def parse_contents(contents, filename, date):
             #     io.StringIO(decoded.decode('utf-8')))
             df = utils.generate_basic_df(io.StringIO(decoded.decode('utf-8')))
             df = utils.add_features_to_df(df)
-            fig = generate_chart(df)
+            fig_magnitude = generate_chart(df, feature_name='magnitude')
+            fig_mhp = generate_chart(df, feature_name='mhp')
             df = df.reset_index(drop=False)
             
         elif 'xls' in filename:
@@ -101,7 +101,8 @@ def parse_contents(contents, filename, date):
         dcc.Tabs([
             dcc.Tab(label='Charts', children=[
                  html.Hr(),
-                 dcc.Graph(figure=fig)
+                 dcc.Graph(figure=fig_magnitude),
+                 dcc.Graph(figure=fig_mhp)
             ]),
             dcc.Tab(label='Input data', children=[
                 html.Hr(),
