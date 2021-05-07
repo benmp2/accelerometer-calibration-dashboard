@@ -2,6 +2,7 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.terminal.activateEnvironment": true,
+    "python.formatting.blackArgs": ["--line-length", "140"],
     "cSpell.ignoreWords": [
         "andon",
         "astype",

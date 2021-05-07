@@ -18,6 +18,7 @@ from plotly.subplots import make_subplots
 test_calibration_df = None
 calibration_period = None
 
+
 def generate_chart(df: pd.DataFrame, feature_name: str) -> go.Figure:
 
     fig = go.Figure()
@@ -34,7 +35,7 @@ def generate_chart_with_rangeselector(df: pd.DataFrame, feature_name: str) -> go
     fig.add_scatter(x=df.index, y=df[feature_name], name=feature_name)
 
     # Set title
-    fig.update_layout(title_text="Time series with range slider and selectors")
+    fig.update_layout(title_text="Select the calibration period:")
 
     # Add range slider
     fig.update_layout(
@@ -42,10 +43,6 @@ def generate_chart_with_rangeselector(df: pd.DataFrame, feature_name: str) -> go
             rangeselector=dict(
                 buttons=list(
                     [
-                        # dict(count=1, label="1m", step="month", stepmode="backward"),
-                        # dict(count=6, label="6m", step="month", stepmode="backward"),
-                        # dict(count=1, label="YTD", step="year", stepmode="todate"),
-                        # dict(count=1, label="1y", step="year", stepmode="backward"),
                         dict(step="all"),
                     ]
                 )
@@ -62,7 +59,7 @@ external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 app = dash.Dash(
     __name__,
     external_stylesheets=external_stylesheets,
-    update_title="Loading...",
+    # update_title="Loading...",
     suppress_callback_exceptions=True,
 )
 
@@ -72,7 +69,7 @@ app.layout = html.Div(
     [
         dcc.Upload(
             id="upload-data",
-            children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
+            children=html.Div(["Drag and Drop or ", html.A("Select Accelerations CSV")]),
             style={
                 "width": "100%",
                 "height": "60px",
@@ -114,9 +111,7 @@ def parse_contents(contents, filename, date):
 
             fig_magnitude = generate_chart(df, feature_name="magnitude")
             fig_mhp = generate_chart(df, feature_name="mhp")
-            fig_mhp_rangeselector = generate_chart_with_rangeselector(
-                df, feature_name="mhp"
-            )
+            fig_mhp_rangeselector = generate_chart_with_rangeselector(df, feature_name="mhp")
             # df = df.reset_index(drop=False)
 
         elif "xls" in filename:
@@ -147,10 +142,13 @@ def parse_contents(contents, filename, date):
                                 figure=fig_mhp_rangeselector,
                             ),
                             html.Div(id="output-container-range-slider"),
-                            html.Button(
-                                "Run MHPDT calibration", id="button-mhpdt-calibration"
+                            html.Button("Run MHPDT calibration", id="button-mhpdt-calibration"),
+                            dcc.Loading(
+                                id="mhpdt-calibration-loading",
+                                type="circle",
+                                children=html.Div(id="mhpdt-results-div"),
+                                #     style={"position": "fixed", "top": "50%", "left": "50%"}
                             ),
-                            html.Div(id="mhpdt-results-div"),
                         ],
                     ),
                     dcc.Tab(
@@ -178,10 +176,7 @@ def parse_contents(contents, filename, date):
 )
 def update_output(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d)
-            for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)
-        ]
+        children = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
         return children
 
 
@@ -194,12 +189,11 @@ def click_button_call_mhpdt_calibration(n_clicks):
     if n_clicks is None:
         raise PreventUpdate
     else:
-        global test_calibration_df,calibration_period
-    
+        global test_calibration_df, calibration_period
+
         acceleration_data = test_calibration_df.copy().loc[calibration_period]
-        calibration_json = utils.accelerations_csv_to_json(
-            acceleration_data, json_attribute="downTimeCalibrationData", file_path=None
-        )
+        print(f"running mhpdt for: [{acceleration_data.index[0]},{acceleration_data.index[-1]}]")
+        calibration_json = utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
         r = requests.post(
             "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
@@ -224,17 +218,25 @@ def update_slider_output_values(relayoutData):
 
     global calibration_period
 
-    default_value = f"[{test_calibration_df.index[0]}:{test_calibration_df.index[-1]}]"
-    calibration_period = slice(test_calibration_df.index[0],test_calibration_df.index[-1])
+    calibration_period = slice(test_calibration_df.index[0], test_calibration_df.index[-1])
     if relayoutData:
-        range_data = relayoutData.get("xaxis.range", default_value)
-        if range_data != default_value:
-            calibration_period = slice(range_data[0],range_data[1])
+        new_range_data = relayoutData.get("xaxis.range", calibration_period)
+        if new_range_data != calibration_period:
+            calibration_period = slice(pd.to_datetime(new_range_data[0]), pd.to_datetime(new_range_data[1]))
     else:
-        range_data = default_value
+        new_range_data = calibration_period
 
-    return 'You have selected "{}"'.format(range_data)
+    diff = calibration_period.stop - calibration_period.start
+
+    message_header = html.P("Selected calibration period:")
+    message_list = html.Ul(
+        id="calibration-period-list",
+        children=[html.Li(f"range: [ {calibration_period.start} : {calibration_period.stop} ]"), html.Li(f"length of period:  {diff}")],
+        style={"padding-left": "10px"},
+    )
+
+    return html.Div(children=[message_header, message_list])
 
 
 if __name__ == "__main__":
-     app.run_server(debug=True)
+    app.run_server(debug=True)
