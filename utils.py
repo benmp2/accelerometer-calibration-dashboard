@@ -276,3 +276,28 @@ def rolling_std_feature(df, window_size='3s'):
     feature = np.sum(np.power(rolling_std, 3), axis=1)
 
     return feature
+
+def accelerations_csv_to_json(df: pd.DataFrame, json_attribute='cycleTimeCalibrationData', file_path=None):
+
+    calibration_json = {json_attribute: []}
+    for row in df[['x', 'y', 'z']].iterrows():
+        try:
+            ts = row[0].strftime('%Y-%m-%dT%H:%M:%S.%f')
+        except ValueError:
+            ts = row[0].strftime('%Y-%m-%dT%H:%M:%S.0')
+        x, y, z = row[1][0], row[1][1], row[1][2]
+
+        json_element = {'timestamp': ts,
+                        'acceleration': {
+                            'x': x,
+                            'y': y,
+                            'z': z
+                        }
+                        }
+        calibration_json[json_attribute].append(json_element)
+
+    if file_path:
+        with open(file_path, 'w') as f:
+            json.dump(calibration_json, f, sort_keys=True, indent=2, separators=(',', ': '))
+    else:
+        return calibration_json
