@@ -3,8 +3,20 @@
     "python.linting.enabled": true,
     "python.terminal.activateEnvironment": true,
     "cSpell.ignoreWords": [
+        "andon",
+        "astype",
+        "ddof",
+        "denoised",
+        "denoising",
+        "fillna",
+        "haris",
+        "iterrows",
+        "itertuples",
         "mhpdt",
+        "numpy",
         "objs",
-        "plotly"
+        "plotly",
+        "sklearn",
+        "xaxis"
     ]
 }

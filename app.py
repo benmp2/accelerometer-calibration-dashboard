@@ -26,6 +26,37 @@ def generate_chart(df: pd.DataFrame, feature_name: str) -> go.Figure:
     return fig
 
 
+def generate_chart_with_rangeselector(df: pd.DataFrame, feature_name: str) -> go.Figure:
+
+    # Create figure
+    fig = go.Figure()
+
+    fig.add_scatter(x=df.index, y=df[feature_name], name=feature_name)
+
+    # Set title
+    fig.update_layout(title_text="Time series with range slider and selectors")
+
+    # Add range slider
+    fig.update_layout(
+        xaxis=dict(
+            rangeselector=dict(
+                buttons=list(
+                    [
+                        # dict(count=1, label="1m", step="month", stepmode="backward"),
+                        # dict(count=6, label="6m", step="month", stepmode="backward"),
+                        # dict(count=1, label="YTD", step="year", stepmode="todate"),
+                        # dict(count=1, label="1y", step="year", stepmode="backward"),
+                        dict(step="all"),
+                    ]
+                )
+            ),
+            rangeslider=dict(visible=True),
+            type="date",
+        )
+    )
+    return fig
+
+
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = dash.Dash(
@@ -55,13 +86,13 @@ app.layout = html.Div(
             # Allow multiple files to be uploaded
             multiple=True,
         ),
-        # html.Div(id='output-data-upload'),
-        dcc.Loading(
-            id="loading-1",
-            type="circle",
-            style={"position": "fixed", "top": "50%", "left": "50%"},
-            children=html.Div(id="output-data-upload"),
-        ),
+        html.Div(id='output-data-upload'),
+        # dcc.Loading(
+        #     id="loading-1",
+        #     type="circle",
+        #     style={"position": "fixed", "top": "50%", "left": "50%"},
+        #     children=html.Div(id="output-data-upload"),
+        # ),
     ]
 )
 
@@ -85,6 +116,9 @@ def parse_contents(contents, filename, date):
 
             fig_magnitude = generate_chart(df, feature_name="magnitude")
             fig_mhp = generate_chart(df, feature_name="mhp")
+            fig_mhp_rangeselector = generate_chart_with_rangeselector(
+                df, feature_name="mhp"
+            )
             df = df.reset_index(drop=False)
 
         elif "xls" in filename:
@@ -110,6 +144,11 @@ def parse_contents(contents, filename, date):
                     dcc.Tab(
                         label="Remote calibration",
                         children=[
+                            dcc.Graph(
+                                id="fig_with_rangeselector",
+                                figure=fig_mhp_rangeselector,
+                            ),
+                            html.Div(id="output-container-range-slider"),
                             html.Button(
                                 "Run MHPDT calibration", id="button-mhpdt-calibration"
                             ),
@@ -176,6 +215,20 @@ def click_button_call_mhpdt_calibration(n_clicks):
         str_result = str(calibration_result)
         return html.Div(str_result)
 
+
+@app.callback(
+    Output("output-container-range-slider", "children"),
+    [Input("fig_with_rangeselector", "relayoutData")],
+)
+def update_slider_output_values(relayoutData):
+    
+    default_value = f'[{test_calibration_df.index[0]}:{test_calibration_df.index[-1]}]'
+    if relayoutData:
+        range_data = relayoutData.get("xaxis.range", default_value)
+    else:
+        range_data = default_value
+
+    return 'You have selected "{}"'.format(range_data)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
