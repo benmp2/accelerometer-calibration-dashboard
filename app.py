@@ -34,9 +34,11 @@ app.layout = html.Div(
     children=[
         dcc.Tabs(
             id="main-tabs",
+            value="upload-data-tab",
             vertical=False,
             children=[
                 dcc.Tab(
+                    value="upload-data-tab",
                     label="Upload data",
                     children=[
                         dcc.Upload(
@@ -58,7 +60,8 @@ app.layout = html.Div(
                     ],
                 ),
                 dcc.Tab(
-                    label="Charts",
+                    value="acceleration-charts-tab",
+                    label="Acceleration charts",
                     children=[
                         html.Hr(),
                         dcc.Graph(id="magnitude-graph"),
@@ -66,7 +69,8 @@ app.layout = html.Div(
                     ],
                 ),
                 dcc.Tab(
-                    label="Remote calibration",
+                    value="dt-calibration-tab",
+                    label="Remote DT calibration",
                     children=[
                         dcc.Graph(id="fig_with_rangeselector"),
                         html.Div(id="output-container-range-slider"),
@@ -121,6 +125,18 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
         return children
+
+
+@app.callback(Output("main-tabs", "value"), Input("dataframe-json-storage", "data"))
+def init_tab_switch_on_upload(data):
+
+    global test_calibration_df
+
+    if test_calibration_df is None:
+        raise PreventUpdate
+
+    if test_calibration_df is not None:
+        return "acceleration-charts-tab"
 
 
 @app.callback(Output("magnitude-graph", "figure"), Input("dataframe-json-storage", "data"))
