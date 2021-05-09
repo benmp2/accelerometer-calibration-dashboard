@@ -160,6 +160,49 @@ def update_mhp_chart(json_data):
 
 
 @app.callback(
+    Output("output-container-range-slider", "children"),
+    [Input("fig_with_rangeselector", "relayoutData")],
+)
+def update_slider_output_values(relayoutData):
+
+    if test_calibration_df is None:
+        return html.Div(children=None)
+
+    global calibration_period
+
+    calibration_period = slice(test_calibration_df.index[0], test_calibration_df.index[-1])
+
+    # Handles case when user zooms on chart to select range:
+    if "xaxis.range[0]" in relayoutData:
+        new_range_data_start = relayoutData["xaxis.range[0]"]
+        new_range_data_start = pd.to_datetime(new_range_data_start)
+
+        new_range_data_stop = relayoutData["xaxis.range[1]"]
+        new_range_data_stop = pd.to_datetime(new_range_data_stop)
+
+        calibration_period = slice(new_range_data_start, new_range_data_stop)
+
+    # Handles case when user zooms on rangeslider to select range:
+    elif "xaxis.range" in relayoutData:
+        new_range_data = relayoutData["xaxis.range"]
+        calibration_period = slice(pd.to_datetime(new_range_data[0]), pd.to_datetime(new_range_data[1]))
+
+    else:
+        new_range_data = calibration_period
+
+    diff = calibration_period.stop - calibration_period.start
+
+    message_header = html.P("Selected calibration period:")
+    message_list = html.Ul(
+        id="calibration-period-list",
+        children=[html.Li(f"range: [ {calibration_period.start} : {calibration_period.stop} ]"), html.Li(f"length of period:  {diff}")],
+        style={"padding-left": "10px"},
+    )
+
+    return html.Div(children=[message_header, message_list])
+
+
+@app.callback(
     Output(component_id="mhpdt-results-div", component_property="children"),
     [Input(component_id="button-mhpdt-calibration", component_property="n_clicks")],
 )
@@ -188,49 +231,6 @@ def click_button_call_mhpdt_calibration(n_clicks):
 
         str_result = str(calibration_result)
         return html.Div(str_result)
-
-
-@app.callback(
-    Output("output-container-range-slider", "children"),
-    [Input("fig_with_rangeselector", "relayoutData")],
-)
-def update_slider_output_values(relayoutData):
-
-    if test_calibration_df is None:
-        return html.Div(children=None)
-    
-    global calibration_period
-
-    calibration_period = slice(test_calibration_df.index[0], test_calibration_df.index[-1])
-    
-    # Handles case when user zooms on chart to select range:
-    if 'xaxis.range[0]' in relayoutData:
-        new_range_data_start = relayoutData["xaxis.range[0]"]
-        new_range_data_start = pd.to_datetime(new_range_data_start)
-
-        new_range_data_stop = relayoutData["xaxis.range[1]"]
-        new_range_data_stop = pd.to_datetime(new_range_data_stop)
-
-        calibration_period = slice(new_range_data_start, new_range_data_stop)
-    
-    # Handles case when user zooms on rangeslider to select range:
-    elif 'xaxis.range' in relayoutData:
-        new_range_data = relayoutData["xaxis.range"]
-        calibration_period = slice(pd.to_datetime(new_range_data[0]), pd.to_datetime(new_range_data[1]))
-    
-    else:
-        new_range_data = calibration_period
-
-    diff = calibration_period.stop - calibration_period.start
-
-    message_header = html.P("Selected calibration period:")
-    message_list = html.Ul(
-        id="calibration-period-list",
-        children=[html.Li(f"range: [ {calibration_period.start} : {calibration_period.stop} ]"), html.Li(f"length of period:  {diff}")],
-        style={"padding-left": "10px"},
-    )
-
-    return html.Div(children=[message_header, message_list])
 
 
 if __name__ == "__main__":
