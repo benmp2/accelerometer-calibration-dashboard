@@ -230,8 +230,6 @@ def click_button_call_mhpdt_calibration(n_clicks):
         global test_calibration_df, calibration_period
 
         acceleration_data = test_calibration_df.copy().loc[calibration_period]
-        # TODO: make sure selected period is the same as the calibration period sent to azure!
-        print(f"running mhpdt for: [{acceleration_data.index[0]},{acceleration_data.index[-1]}]")
         calibration_json = utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
         r = requests.post(
