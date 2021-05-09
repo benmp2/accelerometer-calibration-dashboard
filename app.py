@@ -12,46 +12,12 @@ from dash.exceptions import PreventUpdate
 import requests
 import pandas as pd
 import utils
+import charts
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 test_calibration_df = None
 calibration_period = None
-
-
-def generate_chart(df: pd.DataFrame, feature_name: str) -> go.Figure:
-
-    fig = go.Figure()
-    fig.add_scatter(x=df.index, y=df[feature_name], name=feature_name, showlegend=True)
-    fig.update_layout(title=f"Acceleration's {feature_name} feature chart")
-    return fig
-
-
-def generate_chart_with_rangeselector(df: pd.DataFrame, feature_name: str) -> go.Figure:
-
-    # Create figure
-    fig = go.Figure()
-
-    fig.add_scatter(x=df.index, y=df[feature_name], name=feature_name)
-
-    # Set title
-    fig.update_layout(title_text="Select the calibration period:")
-
-    # Add range slider
-    fig.update_layout(
-        xaxis=dict(
-            rangeselector=dict(
-                buttons=list(
-                    [
-                        dict(step="all"),
-                    ]
-                )
-            ),
-            rangeslider=dict(visible=True),
-            type="date",
-        )
-    )
-    return fig
 
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
@@ -84,12 +50,6 @@ app.layout = html.Div(
             multiple=True,
         ),
         html.Div(id="output-data-upload"),
-        # dcc.Loading(
-        #     id="loading-1",
-        #     type="circle",
-        #     style={"position": "fixed", "top": "50%", "left": "50%"},
-        #     children=html.Div(id="output-data-upload"),
-        # ),
     ]
 )
 
@@ -109,9 +69,9 @@ def parse_contents(contents, filename, date):
             global test_calibration_df
             test_calibration_df = df.copy()
 
-            fig_magnitude = generate_chart(df, feature_name="magnitude")
-            fig_mhp = generate_chart(df, feature_name="mhp")
-            fig_mhp_rangeselector = generate_chart_with_rangeselector(df, feature_name="mhp")
+            fig_magnitude = charts.generate_chart(df, feature_name="magnitude")
+            fig_mhp = charts.generate_chart(df, feature_name="mhp")
+            fig_mhp_rangeselector = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
             # df = df.reset_index(drop=False)
 
         elif "xls" in filename:
