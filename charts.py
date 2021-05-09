@@ -17,7 +17,7 @@ def generate_chart_with_rangeselector(df: pd.DataFrame, feature_name: str) -> go
     fig.add_scatter(x=df.index, y=df[feature_name], name=feature_name)
 
     # Set title
-    fig.update_layout(title_text="Select the calibration period:")
+    fig.update_layout(title_text="Select calibration period:")
 
     # Add range slider
     fig.update_layout(
