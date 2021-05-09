@@ -25,7 +25,6 @@ external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 app = dash.Dash(
     __name__,
     external_stylesheets=external_stylesheets,
-    # update_title="Loading...",
     suppress_callback_exceptions=True,
 )
 
@@ -61,9 +60,7 @@ def parse_contents(contents, filename, date):
     decoded = base64.b64decode(content_string)
     try:
         if "csv" in filename:
-            # # Assume that the user uploaded a CSV file
-            # df = pd.read_csv(
-            #     io.StringIO(decoded.decode('utf-8')))
+
             df = utils.generate_basic_df(io.StringIO(decoded.decode("utf-8")))
             df = utils.add_features_to_df(df)
             global test_calibration_df
@@ -72,11 +69,10 @@ def parse_contents(contents, filename, date):
             fig_magnitude = charts.generate_chart(df, feature_name="magnitude")
             fig_mhp = charts.generate_chart(df, feature_name="mhp")
             fig_mhp_rangeselector = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
-            # df = df.reset_index(drop=False)
 
-        elif "xls" in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
+        else:
+            return html.Div(["The uploaded filetype can only be CSV."])
+
     except Exception as e:
         print(e)
         return html.Div(["There was an error processing this file."])
