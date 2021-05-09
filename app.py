@@ -49,6 +49,7 @@ app.layout = html.Div(
             multiple=True,
         ),
         html.Div(id="output-data-upload"),
+        dcc.Store(id='dataframe-storage')
     ]
 )
 
@@ -81,7 +82,9 @@ def parse_contents(contents, filename, date):
         [
             html.Hr(),
             dcc.Tabs(
-                [
+                id="main-tabs",
+                vertical=False,
+                children=[
                     dcc.Tab(
                         label="Charts",
                         children=[
@@ -118,7 +121,7 @@ def parse_contents(contents, filename, date):
                             ),
                         ],
                     ),
-                ]
+                ],
             ),
         ]
     )
