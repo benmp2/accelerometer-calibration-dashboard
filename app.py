@@ -41,6 +41,7 @@ app.layout = html.Div(
                     value="upload-data-tab",
                     label="Upload data",
                     children=[
+                        html.Hr(),
                         dcc.Upload(
                             id="upload-data",
                             children=html.Div(["Drag and Drop or ", html.A("Select Accelerations CSV")]),
@@ -56,7 +57,7 @@ app.layout = html.Div(
                             },
                             # Allow multiple files to be uploaded
                             multiple=True,
-                        )
+                        ),
                     ],
                 ),
                 dcc.Tab(
@@ -64,15 +65,16 @@ app.layout = html.Div(
                     label="Acceleration charts",
                     children=[
                         html.Hr(),
-                        dcc.Graph(id="magnitude-graph"),
-                        dcc.Graph(id="mhp-graph"),
+                        dcc.Loading(id="magnitude-chart-loading", type="circle", children=dcc.Graph(id="magnitude-graph")),
+                        dcc.Loading(id="mhp-chart-loading", type="circle", children=dcc.Graph(id="mhp-graph")),
                     ],
                 ),
                 dcc.Tab(
                     value="dt-calibration-tab",
                     label="Remote DT calibration",
                     children=[
-                        dcc.Graph(id="fig_with_rangeselector"),
+                        html.Hr(),
+                        dcc.Loading(id="fig_with_rangeselector-loading", type="circle", children=dcc.Graph(id="fig_with_rangeselector")),
                         html.Div(id="output-container-range-slider"),
                         html.Button("Run MHPDT calibration", id="button-mhpdt-calibration"),
                         dcc.Loading(
@@ -180,6 +182,9 @@ def update_mhp_chart(json_data):
     [Input("fig_with_rangeselector", "relayoutData")],
 )
 def update_slider_output_values(relayoutData):
+
+    if relayoutData is None:
+        raise PreventUpdate
 
     if test_calibration_df is None:
         return html.Div(children=None)
