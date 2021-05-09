@@ -19,5 +19,6 @@
         "plotly",
         "sklearn",
         "xaxis"
-    ]
+    ],
+    "python.formatting.provider": "black"
 }
