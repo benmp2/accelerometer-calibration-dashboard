@@ -31,25 +31,57 @@ app = dash.Dash(
 server = app.server
 
 app.layout = html.Div(
-    [
-        dcc.Upload(
-            id="upload-data",
-            children=html.Div(["Drag and Drop or ", html.A("Select Accelerations CSV")]),
-            style={
-                "width": "100%",
-                "height": "60px",
-                "lineHeight": "60px",
-                "borderWidth": "1px",
-                "borderStyle": "dashed",
-                "borderRadius": "5px",
-                "textAlign": "center",
-                "margin": "0px",
-            },
-            # Allow multiple files to be uploaded
-            multiple=True,
+    children=[
+        dcc.Tabs(
+            id="main-tabs",
+            vertical=False,
+            children=[
+                dcc.Tab(
+                    label="Upload data",
+                    children=[
+                        dcc.Upload(
+                            id="upload-data",
+                            children=html.Div(["Drag and Drop or ", html.A("Select Accelerations CSV")]),
+                            style={
+                                "width": "100%",
+                                "height": "60px",
+                                "lineHeight": "60px",
+                                "borderWidth": "1px",
+                                "borderStyle": "dashed",
+                                "borderRadius": "5px",
+                                "textAlign": "center",
+                                "margin": "0px",
+                            },
+                            # Allow multiple files to be uploaded
+                            multiple=True,
+                        )
+                    ],
+                ),
+                dcc.Tab(
+                    label="Charts",
+                    children=[
+                        html.Hr(),
+                        dcc.Graph(id="magnitude-graph"),
+                        dcc.Graph(id="mhp-graph"),
+                    ],
+                ),
+                dcc.Tab(
+                    label="Remote calibration",
+                    children=[
+                        dcc.Graph(id="fig_with_rangeselector"),
+                        html.Div(id="output-container-range-slider"),
+                        html.Button("Run MHPDT calibration", id="button-mhpdt-calibration"),
+                        dcc.Loading(
+                            id="mhpdt-calibration-loading",
+                            type="circle",
+                            children=html.Div(id="mhpdt-results-div"),
+                            #     style={"position": "fixed", "top": "50%", "left": "50%"}
+                        ),
+                    ],
+                ),
+            ],
         ),
-        html.Div(id="output-data-upload"),
-        dcc.Store(id='dataframe-storage')
+        dcc.Store(id="dataframe-json-storage"),
     ]
 )
 
@@ -67,10 +99,6 @@ def parse_contents(contents, filename, date):
             global test_calibration_df
             test_calibration_df = df.copy()
 
-            fig_magnitude = charts.generate_chart(df, feature_name="magnitude")
-            fig_mhp = charts.generate_chart(df, feature_name="mhp")
-            fig_mhp_rangeselector = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
-
         else:
             return html.Div(["The uploaded filetype can only be CSV."])
 
@@ -78,57 +106,13 @@ def parse_contents(contents, filename, date):
         print(e)
         return html.Div(["There was an error processing this file."])
 
-    return html.Div(
-        [
-            html.Hr(),
-            dcc.Tabs(
-                id="main-tabs",
-                vertical=False,
-                children=[
-                    dcc.Tab(
-                        label="Charts",
-                        children=[
-                            html.Hr(),
-                            dcc.Graph(figure=fig_magnitude),
-                            dcc.Graph(figure=fig_mhp),
-                        ],
-                    ),
-                    dcc.Tab(
-                        label="Remote calibration",
-                        children=[
-                            dcc.Graph(
-                                id="fig_with_rangeselector",
-                                figure=fig_mhp_rangeselector,
-                            ),
-                            html.Div(id="output-container-range-slider"),
-                            html.Button("Run MHPDT calibration", id="button-mhpdt-calibration"),
-                            dcc.Loading(
-                                id="mhpdt-calibration-loading",
-                                type="circle",
-                                children=html.Div(id="mhpdt-results-div"),
-                                #     style={"position": "fixed", "top": "50%", "left": "50%"}
-                            ),
-                        ],
-                    ),
-                    dcc.Tab(
-                        label="Input data",
-                        children=[
-                            html.Hr(),
-                            dash_table.DataTable(
-                                data=df.head(5).to_dict("records"),
-                                columns=[{"name": i, "id": i} for i in df.columns],
-                                editable=True,
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ]
-    )
+    df = df.reset_index(drop=False)
+    json_data = df.to_dict("records")
+    return json_data
 
 
 @app.callback(
-    Output("output-data-upload", "children"),
+    Output("dataframe-json-storage", "data"),
     Input("upload-data", "contents"),
     State("upload-data", "filename"),
     State("upload-data", "last_modified"),
@@ -137,6 +121,42 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
         return children
+
+
+@app.callback(Output("magnitude-graph", "figure"), Input("dataframe-json-storage", "data"))
+def update_magnitude_chart(json_data):
+
+    if json_data is None:
+        raise PreventUpdate
+
+    df = pd.DataFrame.from_dict(json_data[0])
+    df = df.set_index("timestamp")
+    fig = charts.generate_chart(df, feature_name="magnitude")
+    return fig
+
+
+@app.callback(Output("mhp-graph", "figure"), Input("dataframe-json-storage", "data"))
+def update_mhp_chart(json_data):
+
+    if json_data is None:
+        raise PreventUpdate
+
+    df = pd.DataFrame.from_dict(json_data[0])
+    df = df.set_index("timestamp")
+    fig = charts.generate_chart(df, feature_name="mhp")
+    return fig
+
+
+@app.callback(Output("fig_with_rangeselector", "figure"), Input("dataframe-json-storage", "data"))
+def update_mhp_chart(json_data):
+
+    if json_data is None:
+        raise PreventUpdate
+
+    df = pd.DataFrame.from_dict(json_data[0])
+    df = df.set_index("timestamp")
+    fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
+    return fig
 
 
 @app.callback(
@@ -176,13 +196,28 @@ def click_button_call_mhpdt_calibration(n_clicks):
 )
 def update_slider_output_values(relayoutData):
 
+    if test_calibration_df is None:
+        return html.Div(children=None)
+    
     global calibration_period
 
     calibration_period = slice(test_calibration_df.index[0], test_calibration_df.index[-1])
-    if relayoutData:
-        new_range_data = relayoutData.get("xaxis.range", calibration_period)
-        if new_range_data != calibration_period:
-            calibration_period = slice(pd.to_datetime(new_range_data[0]), pd.to_datetime(new_range_data[1]))
+    
+    # Handles case when user zooms on chart to select range:
+    if 'xaxis.range[0]' in relayoutData:
+        new_range_data_start = relayoutData["xaxis.range[0]"]
+        new_range_data_start = pd.to_datetime(new_range_data_start)
+
+        new_range_data_stop = relayoutData["xaxis.range[1]"]
+        new_range_data_stop = pd.to_datetime(new_range_data_stop)
+
+        calibration_period = slice(new_range_data_start, new_range_data_stop)
+    
+    # Handles case when user zooms on rangeslider to select range:
+    elif 'xaxis.range' in relayoutData:
+        new_range_data = relayoutData["xaxis.range"]
+        calibration_period = slice(pd.to_datetime(new_range_data[0]), pd.to_datetime(new_range_data[1]))
+    
     else:
         new_range_data = calibration_period
 
