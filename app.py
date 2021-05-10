@@ -234,7 +234,7 @@ def click_button_call_mhpdt_calibration(n_clicks):
     else:
         global test_calibration_df, calibration_period
 
-        acceleration_data = test_calibration_df.copy().loc[calibration_period]
+        acceleration_data = test_calibration_df.copy().loc[calibration_period].round(3)
         calibration_json = dash_utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
         r = requests.post(
