@@ -11,7 +11,7 @@ from dash.exceptions import PreventUpdate
 
 import requests
 import pandas as pd
-import utils
+import dash_utils
 import charts
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
