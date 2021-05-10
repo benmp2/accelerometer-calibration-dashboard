@@ -81,8 +81,8 @@ app.layout = html.Div(
                             id="mhpdt-calibration-loading",
                             type="circle",
                             children=html.Div(id="mhpdt-results-div"),
-                            #     style={"position": "fixed", "top": "50%", "left": "50%"}
                         ),
+                        dcc.Loading(id="dt-loading", type="circle", children=dcc.Graph(id="dt-calibration-graph")),
                     ],
                 ),
             ],
