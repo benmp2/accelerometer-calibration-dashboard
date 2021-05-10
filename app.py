@@ -100,8 +100,8 @@ def parse_contents(contents, filename, date):
     try:
         if "csv" in filename:
 
-            df = utils.generate_basic_df(io.StringIO(decoded.decode("utf-8")))
-            df = utils.add_features_to_df(df)
+            df = dash_utils.generate_basic_df(io.StringIO(decoded.decode("utf-8")))
+            df = dash_utils.add_features_to_df(df)
             global test_calibration_df
             test_calibration_df = df.copy()
 
@@ -166,7 +166,7 @@ def update_mhp_chart(json_data):
 
 
 @app.callback(Output("fig_with_rangeselector", "figure"), Input("dataframe-json-storage", "data"))
-def update_mhp_chart(json_data):
+def update_rangeselector_chart(json_data):
 
     if json_data is None:
         raise PreventUpdate
@@ -235,7 +235,7 @@ def click_button_call_mhpdt_calibration(n_clicks):
         global test_calibration_df, calibration_period
 
         acceleration_data = test_calibration_df.copy().loc[calibration_period]
-        calibration_json = utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
+        calibration_json = dash_utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
         r = requests.post(
             "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
