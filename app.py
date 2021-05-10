@@ -1,7 +1,7 @@
 import base64
 import datetime
 import io
-
+import json
 import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
@@ -80,14 +80,14 @@ app.layout = html.Div(
                         dcc.Loading(
                             id="mhpdt-calibration-loading",
                             type="circle",
-                            children=html.Div(id="mhpdt-results-div"),
+                            children=[html.Div(id="mhpdt-results-div"), dcc.Graph(id="dt-calibration-graph")],
                         ),
-                        dcc.Loading(id="dt-loading", type="circle", children=dcc.Graph(id="dt-calibration-graph")),
                     ],
                 ),
             ],
         ),
         dcc.Store(id="dataframe-json-storage"),
+        dcc.Store(id="mhpdt-calibration-param-storage"),
     ]
 )
 
@@ -250,6 +250,40 @@ def click_button_call_mhpdt_calibration(n_clicks):
 
         str_result = str(calibration_result)
         return html.Div(str_result)
+
+
+@app.callback(
+    Output("mhpdt-calibration-param-storage", "data"),
+    Input(component_id="mhpdt-results-div", component_property="children"),
+)
+def store_mhpdt_calibration_parameters(input_data):
+    if input_data is None:
+        raise PreventUpdate
+
+    return input_data["props"]
+
+
+@app.callback(
+    Output(component_id="dt-calibration-graph", component_property="figure"),
+    Input(component_id="mhpdt-calibration-param-storage", component_property="data"),
+)
+def plot_mhpdt_calibration_results(calibration_params):
+
+    if calibration_params is None:
+        raise PreventUpdate
+
+    global test_calibration_df, calibration_period
+
+    df_calibration = test_calibration_df.copy().loc[calibration_period].round(3)
+
+    # convert calibration params:
+    params_json_format = calibration_params["children"].replace("'", '"')
+    params = json.loads(params_json_format)
+
+    # generate figure
+    fig = charts.generate_mhpdt_calibration_chart(df_calibration, params)
+
+    return fig
 
 
 if __name__ == "__main__":
