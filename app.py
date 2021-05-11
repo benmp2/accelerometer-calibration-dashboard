@@ -231,25 +231,25 @@ def click_button_call_mhpdt_calibration(n_clicks):
 
     if n_clicks is None:
         raise PreventUpdate
-    else:
-        global test_calibration_df, calibration_period
+    
+    global test_calibration_df, calibration_period
 
-        acceleration_data = test_calibration_df.copy().loc[calibration_period].round(3)
-        calibration_json = dash_utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
+    acceleration_data = test_calibration_df.copy().loc[calibration_period].round(3)
+    calibration_json = dash_utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
-        r = requests.post(
-            "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
-            headers={"Content-Type": "application/json"},
-            json=calibration_json,
-        )
+    r = requests.post(
+        "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
+        headers={"Content-Type": "application/json"},
+        json=calibration_json,
+    )
 
-        try:
-            calibration_result = r.json()
-        except ValueError:
-            calibration_result = r.text
+    try:
+        calibration_result = r.json()
+    except ValueError:
+        calibration_result = r.text
 
-        str_result = str(calibration_result)
-        return html.Div(str_result)
+    str_result = str(calibration_result)
+    return html.Div(str_result)
 
 
 @app.callback(
