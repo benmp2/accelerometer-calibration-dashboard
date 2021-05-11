@@ -131,12 +131,12 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 @app.callback(Output("main-tabs", "value"), Input("dataframe-json-storage", "data"))
 def init_tab_switch_on_upload(data):
 
-    global test_calibration_df
+    # global test_calibration_df
 
-    if test_calibration_df is None:
+    if data is None:
         raise PreventUpdate
 
-    if test_calibration_df is not None:
+    if data is not None:
         return "acceleration-charts-tab"
 
 
