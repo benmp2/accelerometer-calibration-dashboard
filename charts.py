@@ -54,6 +54,7 @@ def generate_mhpdt_calibration_chart(df_calibration, params):
     prediction_df = mhpdt_cv.andon_prediction_with_filtering(df_calibration_transient_dropped, params)
 
     calibration_score = mhpdt_cv.optimization_score(df_calibration_transient_dropped, params, tagged_states)
+    calibration_score = round(calibration_score, 3)
     print(f"{calibration_score}")
 
     fig = go.Figure()
