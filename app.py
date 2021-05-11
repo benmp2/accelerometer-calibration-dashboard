@@ -6,7 +6,6 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table
 from dash.exceptions import PreventUpdate
 
 import requests
@@ -220,8 +219,8 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data):
     calibration_json = dash_utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
     r = requests.post(
-        # "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
-        "http://localhost:7071/api/MHPDT_cross_validation",
+        "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
+        # "http://localhost:7071/api/MHPDT_cross_validation",
         headers={"Content-Type": "application/json"},
         json=calibration_json,
     )
