@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.graph_objs as go
-
+from plotly.subplots import make_subplots
 import os, sys
 
 sys.path.append(os.path.abspath("C:\\Users\\benmp\\Work\\haris-oee-ml-azure-functions\\MHPDT_cross_validation"))
@@ -15,6 +15,27 @@ def generate_chart(df: pd.DataFrame, feature_name: str) -> go.Figure:
     fig = go.Figure()
     fig.add_scatter(x=df.index, y=df[feature_name], name=feature_name, showlegend=True)
     fig.update_layout(title=f"Acceleration's {feature_name} feature chart")
+    return fig
+
+
+def generate_subplots_chart(df: pd.DataFrame, feature_names: str = ("magnitude", "mhp")) -> go.Figure:
+
+    row_count = len(feature_names)
+    fig = make_subplots(
+        rows=row_count,
+        cols=1,
+        shared_xaxes="columns",
+        specs=[
+            [{"type": "scatter"}],
+            [{"type": "scatter"}],
+        ],
+        subplot_titles=[f"Acceleration's {f} feature chart" for f in feature_names],
+    )
+
+    for i, col in enumerate(feature_names, start=1):
+        if col in df.columns:
+            fig.add_scatter(x=df.index, y=df[col], name=col, showlegend=True, row=i, col=1)
+
     return fig
 
 

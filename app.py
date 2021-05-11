@@ -65,8 +65,7 @@ app.layout = html.Div(
                     label="Acceleration charts",
                     children=[
                         html.Hr(),
-                        dcc.Loading(id="magnitude-chart-loading", type="circle", children=dcc.Graph(id="magnitude-graph")),
-                        dcc.Loading(id="mhp-chart-loading", type="circle", children=dcc.Graph(id="mhp-graph")),
+                        dcc.Loading(id="mhp-chart-loading", type="circle", children=dcc.Graph(id="mag-mhp-subplot-graph")),
                     ],
                 ),
                 dcc.Tab(
@@ -141,19 +140,7 @@ def init_tab_switch_on_upload(data):
         return "acceleration-charts-tab"
 
 
-@app.callback(Output("magnitude-graph", "figure"), Input("dataframe-json-storage", "data"))
-def update_magnitude_chart(json_data):
-
-    if json_data is None:
-        raise PreventUpdate
-
-    df = pd.DataFrame.from_dict(json_data[0])
-    df = df.set_index("timestamp")
-    fig = charts.generate_chart(df, feature_name="magnitude")
-    return fig
-
-
-@app.callback(Output("mhp-graph", "figure"), Input("dataframe-json-storage", "data"))
+@app.callback(Output("mag-mhp-subplot-graph", "figure"), Input("dataframe-json-storage", "data"))
 def update_mhp_chart(json_data):
 
     if json_data is None:
@@ -161,7 +148,8 @@ def update_mhp_chart(json_data):
 
     df = pd.DataFrame.from_dict(json_data[0])
     df = df.set_index("timestamp")
-    fig = charts.generate_chart(df, feature_name="mhp")
+    fig = charts.generate_subplots_chart(df)
+
     return fig
 
 
@@ -231,7 +219,7 @@ def click_button_call_mhpdt_calibration(n_clicks):
 
     if n_clicks is None:
         raise PreventUpdate
-    
+
     global test_calibration_df, calibration_period
 
     acceleration_data = test_calibration_df.copy().loc[calibration_period].round(3)
