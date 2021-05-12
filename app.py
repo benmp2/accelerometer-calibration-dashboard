@@ -88,11 +88,22 @@ app.layout = html.Div(
                         html.Hr(),
                         dcc.Loading(id="fig_with_rangeselector-loading", type="circle", children=dcc.Graph(id="fig_with_rangeselector")),
                         html.Div(id="output-container-range-slider"),
+                        html.Hr(),
                         html.Button("Run MHPDT calibration", id="button-mhpdt-calibration"),
                         dcc.Loading(
                             id="mhpdt-calibration-loading",
                             type="circle",
                             children=[html.Div(id="mhpdt-results-div"), dcc.Graph(id="dt-calibration-graph")],
+                        ),
+                        html.Hr(),
+                        html.Button("Apply MHPDT calibration to all", id="button-apply-mhpdt-calibration-to-all"),
+                        dcc.Loading(
+                            id="mhpdt-calibration-to-all-loading",
+                            type="circle",
+                            children=[
+                                html.Div(id="apply-mhpdt-calibration-to-all-div"),
+                                dcc.Graph(id="apply-mhpdt-calibration-to-all-graph"),
+                            ],
                         ),
                     ],
                 ),
