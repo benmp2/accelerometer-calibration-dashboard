@@ -12,6 +12,7 @@
         "denoising",
         "fillna",
         "haris",
+        "inplace",
         "iterrows",
         "itertuples",
         "mhpdt",
