@@ -294,3 +294,8 @@ def load_df_from_local_storage(json_data):
     df = df.set_index("timestamp")
 
     return df
+
+def load_calibration_period_from_local_storage(json_data) -> slice:
+    range_start = pd.to_datetime(json_data['start'])
+    range_stop = pd.to_datetime(json_data['stop'])
+    return slice(range_start,range_stop)

@@ -191,10 +191,17 @@ def update_rangeselector_chart(json_data):
 
 
 @app.callback(
-    Output("output-container-range-slider", "children"),
-    [Input("fig_with_rangeselector", "relayoutData"), Input("dataframe-json-storage", "data")],
+    [
+        Output(component_id="output-container-range-slider", component_property="children"),
+        Output(component_id="mhpdt-calibration-period-storage", component_property="data"),
+    ],
+    [
+        Input(component_id="fig_with_rangeselector", component_property="relayoutData"),
+        Input(component_id="dataframe-json-storage", component_property="data"),
+        State(component_id="mhpdt-calibration-period-storage", component_property="data"),
+    ],
 )
-def update_slider_output_values(relayoutData, json_data):
+def update_slider_output_values(relayoutData, json_data, calibration_period):
 
     if relayoutData is None:
         raise PreventUpdate
@@ -203,50 +210,65 @@ def update_slider_output_values(relayoutData, json_data):
         raise PreventUpdate
 
     df = dash_utils.load_df_from_local_storage(json_data)
-    global calibration_period
 
-    # Handles case when user zooms on chart to select range:
+    # Handles case when user zooms/pans on chart to select range:
     if "xaxis.range[0]" in relayoutData:
-        new_range_data_start = relayoutData["xaxis.range[0]"]
-        new_range_data_stop = relayoutData["xaxis.range[1]"]
 
-        calibration_period = slice(pd.to_datetime(new_range_data_start), pd.to_datetime(new_range_data_stop))
+        new_range_start = relayoutData["xaxis.range[0]"]
+        new_range_stop = relayoutData["xaxis.range[1]"]
+
+        calibration_period = {"start": new_range_start, "stop": new_range_stop}
 
     # Handles case when user zooms on rangeslider to select range:
     elif "xaxis.range" in relayoutData:
-        new_range_data = relayoutData["xaxis.range"]
-        calibration_period = slice(pd.to_datetime(new_range_data[0]), pd.to_datetime(new_range_data[1]))
+
+        new_range_start = relayoutData["xaxis.range"][0]
+        new_range_stop = relayoutData["xaxis.range"][1]
+        calibration_period = {"start": new_range_start, "stop": new_range_stop}
 
     # Handles case when user switches tabs
     elif "autosize" in relayoutData:
         # if chart data is unchanged init calibration period, otherwise leave unchanged:
         if calibration_period is None:
-            calibration_period = slice(df.index[0], df.index[-1])
+            new_range_start = df.index[0].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+            new_range_stop = df.index[-1].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+            calibration_period = {"start": new_range_start, "stop": new_range_stop}
 
     # Two more relayoutdata cases :
     # - when user clicks on 'all': relayoutData={'xaxis.autorange':True}
     # - when user clicks on 'house' icon: relayoutData={'xaxis.autorange':True,'xaxis.showspikes':False} --> this sometimes gets stuck
     # in these cases default to the whole range of the data:
     else:
-        calibration_period = slice(df.index[0], df.index[-1])
+        new_range_start = df.index[0].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+        new_range_stop = df.index[-1].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+        calibration_period = {"start": new_range_start, "stop": new_range_stop}
 
-    diff = pd.to_datetime(calibration_period.stop) - pd.to_datetime(calibration_period.start)
+    diff = pd.to_datetime(calibration_period["stop"]) - pd.to_datetime(calibration_period["start"])
 
     message_header = html.P("Selected calibration period:")
     message_list = html.Ul(
         id="calibration-period-list",
-        children=[html.Li(f"range: [ {calibration_period.start} : {calibration_period.stop} ]"), html.Li(f"length of period:  {diff}")],
+        children=[
+            html.Li(f"range: [ {calibration_period['start']} : {calibration_period['stop']} ]"),
+            html.Li(f"length of period:  {diff}"),
+        ],
         style={"padding-left": "20px"},
     )
 
-    return html.Div(children=[message_header, message_list], style={"margin-left": "80px"})
+    output_message_div = html.Div(children=[message_header, message_list], style={"margin-left": "80px"})
+
+    return output_message_div, calibration_period
 
 
 @app.callback(
     Output(component_id="mhpdt-results-div", component_property="children"),
-    [Input(component_id="button-mhpdt-calibration", component_property="n_clicks"), State("dataframe-json-storage", "data")],
+    [
+        Input(component_id="button-mhpdt-calibration", component_property="n_clicks"),
+        State(component_id="dataframe-json-storage", component_property="data"),
+        State(component_id="mhpdt-calibration-period-storage", component_property="data"),
+    ],
 )
-def click_button_call_mhpdt_calibration(n_clicks, json_data):
+def click_button_call_mhpdt_calibration(n_clicks, json_data, calibration_period_json):
 
     if n_clicks is None:
         raise PreventUpdate
@@ -254,8 +276,7 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data):
     if json_data is None:
         raise PreventUpdate
 
-    global calibration_period
-
+    calibration_period = dash_utils.load_calibration_period_from_local_storage(calibration_period_json)
     df = dash_utils.load_df_from_local_storage(json_data)
 
     acceleration_data = df.copy().loc[calibration_period].round(3)
@@ -290,24 +311,28 @@ def store_mhpdt_calibration_parameters(input_data):
 
 @app.callback(
     Output(component_id="dt-calibration-graph", component_property="figure"),
-    [Input(component_id="mhpdt-calibration-param-storage", component_property="data"), State("dataframe-json-storage", "data")],
+    [
+        Input(component_id="mhpdt-calibration-param-storage", component_property="data"),
+        State(component_id="dataframe-json-storage", component_property="data"),
+        State(component_id="mhpdt-calibration-period-storage", component_property="data"),
+    ],
 )
-def plot_mhpdt_calibration_results(calibration_params, json_data):
+def plot_mhpdt_calibration_results(calibration_params, json_data, calibration_period_json):
 
     if calibration_params is None:
         raise PreventUpdate
 
-    global calibration_period
-
+    calibration_period = dash_utils.load_calibration_period_from_local_storage(calibration_period_json)
+    
     df = dash_utils.load_df_from_local_storage(json_data)
     df_calibration = df.copy().loc[calibration_period].round(3)
 
     if "calibration_score" in calibration_params["children"]:
-        # generate figure
+
         # convert calibration params:
         params_json_format = calibration_params["children"].replace("'", '"')
         params = json.loads(params_json_format)
-
+        # generate figure
         fig = charts.generate_mhpdt_calibration_chart(df_calibration, params)
 
         return fig
