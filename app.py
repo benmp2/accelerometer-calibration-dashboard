@@ -83,20 +83,26 @@ app.layout = html.Div(
                 ),
                 dcc.Tab(
                     value="dt-calibration-tab",
-                    label="Remote DT calibration",
+                    label="Remote MHPDT calibration",
                     children=[
                         html.Hr(),
                         dcc.Loading(id="fig_with_rangeselector-loading", type="circle", children=dcc.Graph(id="fig_with_rangeselector")),
                         html.Div(id="output-container-range-slider"),
                         html.Hr(),
-                        html.Button("Run MHPDT calibration", id="button-mhpdt-calibration"),
+                        html.Button(
+                            "Run MHPDT calibration", id="button-mhpdt-calibration", style={"margin-left": "80px", "margin-bottom": "10px"}
+                        ),
                         dcc.Loading(
                             id="mhpdt-calibration-loading",
                             type="circle",
                             children=[html.Div(id="mhpdt-results-div"), dcc.Graph(id="dt-calibration-graph")],
                         ),
                         html.Hr(),
-                        html.Button("Apply MHPDT calibration to all", id="button-apply-mhpdt-calibration-to-all"),
+                        html.Button(
+                            "Apply MHPDT calibration to whole period",
+                            id="button-apply-mhpdt-calibration-to-all",
+                            style={"margin-left": "80px"},
+                        ),
                         dcc.Loading(
                             id="mhpdt-calibration-to-all-loading",
                             type="circle",
@@ -221,10 +227,10 @@ def update_slider_output_values(relayoutData, json_data):
     message_list = html.Ul(
         id="calibration-period-list",
         children=[html.Li(f"range: [ {calibration_period.start} : {calibration_period.stop} ]"), html.Li(f"length of period:  {diff}")],
-        style={"padding-left": "10px"},
+        style={"padding-left": "20px"},
     )
 
-    return html.Div(children=[message_header, message_list])
+    return html.Div(children=[message_header, message_list], style={"margin-left": "80px"})
 
 
 @app.callback(
@@ -259,7 +265,7 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data):
         calibration_result = r.text
 
     str_result = str(calibration_result)
-    return html.Div(str_result)
+    return html.Div(str_result, style={"margin-left": "80px"})
 
 
 @app.callback(
