@@ -323,9 +323,41 @@ def plot_mhpdt_calibration_results(calibration_params, json_data, calibration_pe
         raise PreventUpdate
 
     calibration_period = dash_utils.load_calibration_period_from_local_storage(calibration_period_json)
-    
+
     df = dash_utils.load_df_from_local_storage(json_data)
     df_calibration = df.copy().loc[calibration_period].round(3)
+
+    if "calibration_score" in calibration_params["children"]:
+
+        # convert calibration params:
+        params_json_format = calibration_params["children"].replace("'", '"')
+        params = json.loads(params_json_format)
+        # generate figure
+        fig = charts.generate_mhpdt_calibration_chart(df_calibration, params)
+
+        return fig
+    else:
+        return go.Figure()
+
+
+@app.callback(
+    Output(component_id="apply-mhpdt-calibration-to-all-graph", component_property="figure"),
+    [
+        Input(component_id="button-apply-mhpdt-calibration-to-all", component_property="n_clicks"),
+        State(component_id="dataframe-json-storage", component_property="data"),
+        State(component_id="mhpdt-calibration-param-storage", component_property="data"),
+    ],
+)
+def plot_mhpdt_calibration_applied_to_whole_period(n_clicks, df_json_data ,calibration_params):
+
+    if n_clicks is None:
+        raise PreventUpdate
+
+    if calibration_params is None:
+        raise PreventUpdate
+
+    df = dash_utils.load_df_from_local_storage(df_json_data)
+    df_calibration = df.copy().round(3)
 
     if "calibration_score" in calibration_params["children"]:
 
