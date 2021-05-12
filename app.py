@@ -289,5 +289,39 @@ def plot_mhpdt_calibration_results(calibration_params, json_data):
         return go.Figure()
 
 
+@app.callback(
+    Output(component_id="pandas-eval-chart", component_property="figure"),
+    [
+        Input(component_id="pandas-eval-button", component_property="n_clicks"),
+        State(component_id="dataframe-json-storage", component_property="data"),
+        State(component_id="pandas-eval-input", component_property="value"),
+    ],
+)
+def update_evaluate_chart(n_clicks, json_data, eval_expression):
+
+    if n_clicks is None:
+        raise PreventUpdate
+    elif json_data is None:
+        raise PreventUpdate
+    else:
+        df = dash_utils.load_df_from_local_storage(json_data).round(3)
+        df_plot = None
+        try:
+            df_plot = df.eval(eval_expression, inplace=False)
+        except AttributeError:
+            print("invalid expression")
+        except ValueError:
+            print("unable to calculate expression")
+
+        if df_plot is not None:
+            fig = go.Figure()
+            fig.add_scatter(x=df_plot.index, y=df_plot.values, name=df_plot.name, showlegend=True)
+            fig.update_layout(title=f"Acceleration's feature chart from '{eval_expression}' evaluated expression")
+        else:
+            fig = go.Figure()
+
+        return fig
+
+
 if __name__ == "__main__":
     app.run_server(debug=True)
