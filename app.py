@@ -262,7 +262,7 @@ def plot_mhpdt_calibration_results(calibration_params, json_data):
     df = dash_utils.load_df_from_local_storage(json_data)
     df_calibration = df.copy().loc[calibration_period].round(3)
 
-    if 'calibration_score' in calibration_params["children"]:
+    if "calibration_score" in calibration_params["children"]:
         # generate figure
         # convert calibration params:
         params_json_format = calibration_params["children"].replace("'", '"')
@@ -273,6 +273,7 @@ def plot_mhpdt_calibration_results(calibration_params, json_data):
         return fig
     else:
         return go.Figure()
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
