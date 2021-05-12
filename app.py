@@ -211,6 +211,9 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data):
     if n_clicks is None:
         raise PreventUpdate
 
+    if json_data is None:
+        raise PreventUpdate
+
     global calibration_period
 
     df = dash_utils.load_df_from_local_storage(json_data)
