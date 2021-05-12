@@ -65,6 +65,20 @@ app.layout = html.Div(
                     children=[
                         html.Hr(),
                         dcc.Loading(id="mhp-chart-loading", type="circle", children=dcc.Graph(id="mag-mhp-subplot-graph")),
+                        html.Div(
+                            id="pandas-eval-div",
+                            children=[
+                                dcc.Input(
+                                    id="pandas-eval-input",
+                                    type="text",
+                                    placeholder="Specify expression to evaluate",
+                                    debounce=True,
+                                    style={"width": "500px", "margin-right": "30px", "margin-left": "80px"},
+                                ),
+                                html.Button(id="pandas-eval-button", children="Evaluate"),
+                            ],
+                        ),
+                        dcc.Loading(id="pandas-eval-chart-loading", type="circle", children=dcc.Graph(id="pandas-eval-chart")),
                     ],
                 ),
                 dcc.Tab(
