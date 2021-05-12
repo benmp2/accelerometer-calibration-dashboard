@@ -116,6 +116,7 @@ app.layout = html.Div(
             ],
         ),
         dcc.Store(id="dataframe-json-storage"),
+        dcc.Store(id="mhpdt-calibration-period-storage"),
         dcc.Store(id="mhpdt-calibration-param-storage"),
     ]
 )
@@ -204,8 +205,6 @@ def update_slider_output_values(relayoutData, json_data):
     df = dash_utils.load_df_from_local_storage(json_data)
     global calibration_period
 
-    calibration_period = slice(df.index[0], df.index[-1])
-
     # Handles case when user zooms on chart to select range:
     if "xaxis.range[0]" in relayoutData:
         new_range_data_start = relayoutData["xaxis.range[0]"]
@@ -218,8 +217,18 @@ def update_slider_output_values(relayoutData, json_data):
         new_range_data = relayoutData["xaxis.range"]
         calibration_period = slice(pd.to_datetime(new_range_data[0]), pd.to_datetime(new_range_data[1]))
 
+    # Handles case when user switches tabs
+    elif "autosize" in relayoutData:
+        # if chart data is unchanged init calibration period, otherwise leave unchanged:
+        if calibration_period is None:
+            calibration_period = slice(df.index[0], df.index[-1])
+
+    # Two more relayoutdata cases :
+    # - when user clicks on 'all': relayoutData={'xaxis.autorange':True}
+    # - when user clicks on 'house' icon: relayoutData={'xaxis.autorange':True,'xaxis.showspikes':False} --> this sometimes gets stuck
+    # in these cases default to the whole range of the data:
     else:
-        new_range_data = calibration_period
+        calibration_period = slice(df.index[0], df.index[-1])
 
     diff = pd.to_datetime(calibration_period.stop) - pd.to_datetime(calibration_period.start)
 
