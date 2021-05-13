@@ -88,6 +88,28 @@ app.layout = html.Div(
                         html.Hr(),
                         dcc.Loading(id="fig_with_rangeselector-loading", type="circle", children=dcc.Graph(id="fig_with_rangeselector")),
                         html.Div(id="output-container-range-slider"),
+                        html.Div(
+                            id="calibration-filter-div",
+                            children=[
+                                html.Hr(),
+
+                                html.Div(
+                                    id="calibration-filter-inputs",
+                                    children=[
+                                        dcc.Input(
+                                            id="calibration-filter-start-date",
+                                            placeholder="Start date (format: 2021-05-10T07:26:15.631148Z)",
+                                            style={"width": "400px", "margin-right": "10px"},
+                                        ),
+                                        dcc.Input(id="calibration-filter-end-date", placeholder="End date (format: 2021-05-10T07:41:20.631148Z)", style={"width": "400px"}),
+                                    ],
+                                    style={"margin-bottom": "10px"},
+                                ),
+                                html.Button(id="calibration-filter-button", children="Apply date filter"),
+                                html.Div(id="calibration-filter-success"),
+                            ],
+                            style={"margin-left": "80px"},
+                        ),
                         html.Hr(),
                         html.Button(
                             "Run MHPDT calibration", id="button-mhpdt-calibration", style={"margin-left": "80px", "margin-bottom": "10px"}
@@ -348,7 +370,7 @@ def plot_mhpdt_calibration_results(calibration_params, json_data, calibration_pe
         State(component_id="mhpdt-calibration-param-storage", component_property="data"),
     ],
 )
-def plot_mhpdt_calibration_applied_to_whole_period(n_clicks, df_json_data ,calibration_params):
+def plot_mhpdt_calibration_applied_to_whole_period(n_clicks, df_json_data, calibration_params):
 
     if n_clicks is None:
         raise PreventUpdate
