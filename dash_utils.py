@@ -125,6 +125,10 @@ def add_features_to_df(df: pd.DataFrame, **kwargs) -> pd.DataFrame:
     df["no_gravity"] = gravity_free_magnitude(df, alpha=alpha)
     df["pca"] = PCA(n_components=1).fit_transform(df[["x", "y", "z"]].fillna(0))
 
+    # add rolling averages
+    for axis in ["x", "y", "z"]:
+        df[f"{axis}_{mhp_window_size}_avg"] = df[axis].rolling(mhp_window_size).mean().fillna(0)
+
     return df
 
 
@@ -295,7 +299,8 @@ def load_df_from_local_storage(json_data):
 
     return df
 
+
 def load_calibration_period_from_local_storage(json_data) -> slice:
-    range_start = pd.to_datetime(json_data['start'])
-    range_stop = pd.to_datetime(json_data['stop'])
-    return slice(range_start,range_stop)
+    range_start = pd.to_datetime(json_data["start"])
+    range_stop = pd.to_datetime(json_data["stop"])
+    return slice(range_start, range_stop)
