@@ -391,23 +391,5 @@ def update_evaluate_chart(n_clicks, json_data, eval_expression):
         return fig
 
 
-# @app.callback(
-#     Output(component_id="fig_with_rangeselector", component_property="figure"),
-#     [
-#         Input(component_id="calibration-date-filter-button", component_property="n_clicks"),
-#         State(component_id="fig_with_rangeselector", component_property="figure"),
-#     ],
-# )
-# def filter_calibration_period_on_specified_range(n_clicks, fig):
-
-#     if n_clicks is None:
-#         raise PreventUpdate
-
-#     if fig is None:
-#         raise PreventUpdate
-
-#     return fig
-
-
 if __name__ == "__main__":
     app.run_server(debug=True)
