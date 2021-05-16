@@ -209,39 +209,7 @@ def update_slider_output_values(relayoutData, json_data, calibration_period):
         raise PreventUpdate
 
     df = dash_utils.load_df_from_local_storage(json_data)
-
-    # Handles case when user zooms/pans on chart to select range:
-    if "xaxis.range[0]" in relayoutData:
-
-        new_range_start = relayoutData["xaxis.range[0]"]
-        new_range_stop = relayoutData["xaxis.range[1]"]
-
-        calibration_period = {"start": new_range_start, "stop": new_range_stop}
-
-    # Handles case when user zooms on rangeslider to select range:
-    elif "xaxis.range" in relayoutData:
-
-        new_range_start = relayoutData["xaxis.range"][0]
-        new_range_stop = relayoutData["xaxis.range"][1]
-        calibration_period = {"start": new_range_start, "stop": new_range_stop}
-
-    # Handles case when user switches tabs
-    elif "autosize" in relayoutData:
-        # if chart data is unchanged init calibration period, otherwise leave unchanged:
-        if calibration_period is None:
-            new_range_start = df.index[0].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
-            new_range_stop = df.index[-1].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
-            calibration_period = {"start": new_range_start, "stop": new_range_stop}
-
-    # Two more relayoutdata cases :
-    # - when user clicks on 'all': relayoutData={'xaxis.autorange':True}
-    # - when user clicks on 'house' icon: relayoutData={'xaxis.autorange':True,'xaxis.showspikes':False} --> this sometimes gets stuck
-    # in these cases default to the whole range of the data:
-    else:
-        new_range_start = df.index[0].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
-        new_range_stop = df.index[-1].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
-        calibration_period = {"start": new_range_start, "stop": new_range_stop}
-
+    calibration_period = dash_utils.calculate_calibration_period_based_on_user_action(df, relayoutData, calibration_period)
     diff = pd.to_datetime(calibration_period["stop"]) - pd.to_datetime(calibration_period["start"])
 
     message_header = html.P("Selected calibration period:")
