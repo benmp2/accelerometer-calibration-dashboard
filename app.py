@@ -179,30 +179,32 @@ def update_mhp_chart(json_data):
 
 
 @app.callback(
-    [Output(component_id="fig_with_rangeselector", component_property="figure")],
+    Output(component_id="fig_with_rangeselector", component_property="figure"),
     [
         Input(component_id="dataframe-json-storage", component_property="data"),
         Input(component_id="calibration-date-filter-button", component_property="n_clicks"),
         State(component_id="calibration-filter-start-date", component_property="value"),
         State(component_id="calibration-filter-end-date", component_property="value"),
+        State(component_id="fig_with_rangeselector", component_property="figure"),
     ],
 )
-def update_rangeselector_chart(json_data, n_clicks):
+def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str, fig):
 
     if json_data is None:
         raise PreventUpdate
 
     df = dash_utils.load_df_from_local_storage(json_data)
 
-    if n_clicks is not None:
+    if (n_clicks is not None) and (fig is not None):
         # TODO:
         # - make sure input dates are in the correct format
         # - date filtering is with in df index range
         # - if all clear then filter df for figure?
-        # - make sure relayoutData is triggered?
+        # - trigger relayoutData by modifying existing fig object,
+        #   which in turn triggers the calibration period calculation
         pass
-
-    fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
+    else:
+        fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
 
     return fig
 
