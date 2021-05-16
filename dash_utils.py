@@ -1,3 +1,7 @@
+import base64
+import io
+import dash_html_components as html
+
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Union
@@ -304,3 +308,26 @@ def load_calibration_period_from_local_storage(json_data) -> slice:
     range_start = pd.to_datetime(json_data["start"])
     range_stop = pd.to_datetime(json_data["stop"])
     return slice(range_start, range_stop)
+
+
+def parse_contents(contents, filename, date):
+    # content_type, content_string = contents.split(',')
+    _, content_string = contents.split(",")
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if "csv" in filename:
+
+            df = generate_basic_df(io.StringIO(decoded.decode("utf-8")))
+            df = add_features_to_df(df)
+
+        else:
+            return html.Div(["The uploaded filetype can only be CSV."])
+
+    except Exception as e:
+        print(e)
+        return html.Div(["There was an error processing this file."])
+
+    df = df.reset_index(drop=False)
+    json_data = df.to_dict("records")
+    return json_data

@@ -1,6 +1,3 @@
-import base64
-import datetime
-import io
 import json
 import dash
 from dash.dependencies import Input, Output, State
@@ -147,29 +144,6 @@ app.layout = html.Div(
 )
 
 
-def parse_contents(contents, filename, date):
-    # content_type, content_string = contents.split(',')
-    _, content_string = contents.split(",")
-
-    decoded = base64.b64decode(content_string)
-    try:
-        if "csv" in filename:
-
-            df = dash_utils.generate_basic_df(io.StringIO(decoded.decode("utf-8")))
-            df = dash_utils.add_features_to_df(df)
-
-        else:
-            return html.Div(["The uploaded filetype can only be CSV."])
-
-    except Exception as e:
-        print(e)
-        return html.Div(["There was an error processing this file."])
-
-    df = df.reset_index(drop=False)
-    json_data = df.to_dict("records")
-    return json_data
-
-
 @app.callback(
     Output("dataframe-json-storage", "data"),
     Input("upload-data", "contents"),
@@ -178,7 +152,7 @@ def parse_contents(contents, filename, date):
 )
 def update_output(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
-        children = [parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
+        children = [dash_utils.parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
         return children
 
 
