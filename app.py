@@ -92,7 +92,6 @@ app.layout = html.Div(
                             id="calibration-filter-div",
                             children=[
                                 html.Hr(),
-
                                 html.Div(
                                     id="calibration-filter-inputs",
                                     children=[
@@ -101,11 +100,15 @@ app.layout = html.Div(
                                             placeholder="Start date (format: 2021-05-10T07:26:15.631148Z)",
                                             style={"width": "400px", "margin-right": "10px"},
                                         ),
-                                        dcc.Input(id="calibration-filter-end-date", placeholder="End date (format: 2021-05-10T07:41:20.631148Z)", style={"width": "400px"}),
+                                        dcc.Input(
+                                            id="calibration-filter-end-date",
+                                            placeholder="End date (format: 2021-05-10T07:41:20.631148Z)",
+                                            style={"width": "400px"},
+                                        ),
                                     ],
                                     style={"margin-bottom": "10px"},
                                 ),
-                                html.Button(id="calibration-filter-button", children="Apply date filter"),
+                                html.Button(id="calibration-date-filter-button", children="Apply date filter"),
                                 html.Div(id="calibration-filter-success"),
                             ],
                             style={"margin-left": "80px"},
@@ -426,6 +429,24 @@ def update_evaluate_chart(n_clicks, json_data, eval_expression):
             fig = go.Figure()
 
         return fig
+
+
+# @app.callback(
+#     Output(component_id="fig_with_rangeselector", component_property="figure"),
+#     [
+#         Input(component_id="calibration-date-filter-button", component_property="n_clicks"),
+#         State(component_id="fig_with_rangeselector", component_property="figure"),
+#     ],
+# )
+# def filter_calibration_period_on_specified_range(n_clicks, fig):
+
+#     if n_clicks is None:
+#         raise PreventUpdate
+
+#     if fig is None:
+#         raise PreventUpdate
+
+#     return fig
 
 
 if __name__ == "__main__":
