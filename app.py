@@ -198,7 +198,7 @@ def update_rangeselector_chart(json_data, n_clicks):
         # TODO:
         # - make sure input dates are in the correct format
         # - date filtering is with in df index range
-        # - if all clear then filter figure?
+        # - if all clear then filter df for figure?
         # - make sure relayoutData is triggered?
         pass
 
