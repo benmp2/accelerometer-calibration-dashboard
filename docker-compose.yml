@@ -1,8 +1,14 @@
 version: '3.4'
 
 services:
-  dashreport:
-    image: dashreport
+  haris-mhpdt-calibration-dashboard:
+    image: mhpdt-dashboard
     build:
       context: .
       dockerfile: ./Dockerfile
+    environment:
+      - DASH_DEBUG_MODE=False
+      - DASH_HOST=0.0.0.0
+      - DASH_PORT=8050
+    ports:
+        - "8050:8050"

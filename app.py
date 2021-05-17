@@ -395,6 +395,8 @@ def update_evaluate_chart(n_clicks, json_data, eval_expression):
 
 if __name__ == "__main__":
 
+    import os
+
     logging.basicConfig(
         format="[%(asctime)s %(levelname)s] %(message)s",
         datefmt="%m/%d/%Y %I:%M:%S %p",
@@ -405,4 +407,7 @@ if __name__ == "__main__":
     level_name = logging.getLevelName(logger.getEffectiveLevel())
     logger.info(f"Starting Haris-MHPDT-calibration-dashboard at log level {level_name}")
 
-    app.run_server(debug=True)
+    debug = False if os.environ.get("DASH_DEBUG_MODE", None) == "False" else True
+    dash_host = os.environ.get("DASH_HOST", "127.0.0.1")
+    dash_port = os.environ.get("DASH_PORT", 8050)
+    app.run_server(debug=debug, host=dash_host, port=int(dash_port))
