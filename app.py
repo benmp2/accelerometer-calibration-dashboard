@@ -1,4 +1,5 @@
 import json
+import logging, sys
 import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
@@ -13,8 +14,7 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 
-calibration_period = None
-
+logger = logging.getLogger(__name__)
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
@@ -379,9 +379,9 @@ def update_evaluate_chart(n_clicks, json_data, eval_expression):
         try:
             df_plot = df.eval(eval_expression, inplace=False)
         except AttributeError:
-            print("invalid expression")
+            logger.info("invalid expression")
         except ValueError:
-            print("unable to calculate expression")
+            logger.info("unable to calculate expression")
 
         if df_plot is not None:
             fig = go.Figure()
@@ -394,4 +394,15 @@ def update_evaluate_chart(n_clicks, json_data, eval_expression):
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(
+        format="[%(asctime)s %(levelname)s] %(message)s",
+        datefmt="%m/%d/%Y %I:%M:%S %p",
+        level=logging.INFO,
+        handlers=[logging.StreamHandler(sys.stdout)],
+    )
+    logger = logging.getLogger()
+    level_name = logging.getLevelName(logger.getEffectiveLevel())
+    logger.info(f"Starting Haris-MHPDT-calibration-dashboard at log level {level_name}")
+
     app.run_server(debug=True)
