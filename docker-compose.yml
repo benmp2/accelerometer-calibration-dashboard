@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  dashreport:
+    image: dashreport
+    build:
+      context: .
+      dockerfile: ./Dockerfile
