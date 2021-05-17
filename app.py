@@ -269,9 +269,9 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data, calibration_period_
     acceleration_data = df.copy().loc[calibration_period].round(3)
     calibration_json = dash_utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
+    azure_func_url = os.environ.get("AZURE_FUNC_URL","http://localhost:7071")
     r = requests.post(
-        "https://haris-oee-ml-azure-functions-staging.azurewebsites.net/api/MHPDT_cross_validation",
-        # "http://localhost:7071/api/MHPDT_cross_validation",
+        f"{azure_func_url}/api/MHPDT_cross_validation",
         headers={"Content-Type": "application/json"},
         json=calibration_json,
     )
