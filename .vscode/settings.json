@@ -12,6 +12,7 @@
         "denoised",
         "denoising",
         "fillna",
+        "ghmm",
         "haris",
         "inplace",
         "iterrows",
@@ -21,6 +22,8 @@
         "objs",
         "plotly",
         "sklearn",
+        "stmc",
+        "viterbi",
         "xaxes",
         "xaxis"
     ],
