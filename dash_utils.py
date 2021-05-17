@@ -368,3 +368,8 @@ def calculate_calibration_period_based_on_user_action(df: pd.DataFrame, relayout
         calibration_period = {"start": new_range_start, "stop": new_range_stop}
 
     return calibration_period
+
+
+def date_sanity_checker(df: pd.Dataframe, start_date_str: str, end_date_str: str) -> bool:
+
+    pass
