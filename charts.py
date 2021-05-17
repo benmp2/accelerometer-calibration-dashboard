@@ -1,9 +1,10 @@
+import os, sys
 import pandas as pd
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-import os, sys
-sys.path.append(os.path.abspath("C:\\Users\\benmp\\Work\\haris-oee-ml-azure-functions\\MHPDT_cross_validation"))
+dir_path = os.path.dirname(os.path.realpath("./MHPDT_cross_validation/*"))
+sys.path.insert(0, dir_path)
 import utils
 import micro_filter
 import hmm_tagging
@@ -75,7 +76,7 @@ def generate_mhpdt_calibration_chart(df_calibration, params):
     prediction_df = mhpdt_cv.andon_prediction_with_filtering(df_calibration_transient_dropped, params)
 
     calibration_score = mhpdt_cv.optimization_score(df_calibration_transient_dropped, params, tagged_states)
-    calibration_score = round(calibration_score*100, 3)
+    calibration_score = round(calibration_score * 100, 3)
     print(f"{calibration_score}")
 
     fig = go.Figure()
