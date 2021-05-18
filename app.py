@@ -62,6 +62,7 @@ app.layout = html.Div(
                     children=[
                         html.Hr(),
                         dcc.Loading(id="mhp-chart-loading", type="circle", children=dcc.Graph(id="mag-mhp-subplot-graph")),
+                        html.Hr(),
                         html.Div(
                             id="pandas-eval-div",
                             children=[
