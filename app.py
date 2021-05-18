@@ -182,6 +182,7 @@ def update_mhp_chart(json_data):
 @app.callback(
     [
         Output(component_id="fig_with_rangeselector", component_property="figure"),
+        Output(component_id="fig_with_rangeselector", component_property="relayoutData"),
         Output(component_id="incorrect-filter-range-div", component_property="children"),
     ],
     [
@@ -200,9 +201,10 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
     df = dash_utils.load_df_from_local_storage(json_data)
 
     fail_div_msg = None
+    relayoutData = None
 
     if (n_clicks is not None) and (fig is not None):
-        # TODO:
+        # this should be refactored:
         # - make sure input dates are in the correct format
         # - date filtering is with in df index range
         # - if all clear then filter df for figure?
@@ -216,10 +218,17 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
         if fail_div_msg is None:
             fail_div_msg = dash_utils.filter_chart_on_daterange(fig, df, start_date_str, end_date_str)
 
+        if fail_div_msg is None:
+            if start_date_str == "" or start_date_str is None:
+                start_date_str = df.index[0].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+            if end_date_str == "" or end_date_str is None:
+                end_date_str = df.index[-1].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+
+            relayoutData = {"xaxis.range": [start_date_str, end_date_str]}
     else:
         fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
 
-    return fig, fail_div_msg
+    return fig, relayoutData, fail_div_msg
 
 
 @app.callback(
@@ -423,4 +432,5 @@ if __name__ == "__main__":
     debug = False if os.environ.get("DASH_DEBUG_MODE", None) == "False" else True
     dash_host = os.environ.get("DASH_HOST", "127.0.0.1")
     dash_port = os.environ.get("DASH_PORT", 8050)
+
     app.run_server(debug=debug, host=dash_host, port=int(dash_port))

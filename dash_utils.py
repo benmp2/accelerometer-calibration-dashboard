@@ -1,6 +1,7 @@
 import base64
 import io
 import dash_html_components as html
+import plotly.graph_objs as go
 
 import pandas as pd
 import numpy as np
@@ -412,18 +413,22 @@ def filter_chart_on_daterange(fig, df, start_date_str: str, end_date_str: str) -
     if (start_date is None) and (end_date is None):
         fail_error_msg = "Start date and end date are equal. Unable to filter date range."
 
-    if start_date is None:
+    if (start_date is None) or (start_date_str == ""):
         start_date = df.index[0]
-    if end_date is None:
+    if (end_date is None) or (end_date_str == ""):
         end_date = df.index[-1]
 
     if start_date == end_date:
         fail_error_msg = "Start date and end date are equal. Unable to filter date range."
-    
+
     if start_date > end_date:
         fail_error_msg = "Start date is greater than end date. Unable to filter date range."
-    
+
     if fail_error_msg is None:
-        fig.update_layout(dict(xaxis_range=[start_date,end_date]))
+        # fig = go.Figure(fig)
+        # fig.update_layout(dict(xaxis_range=[start_date, end_date]))
+        fig["layout"]["xaxis"]["range"][0] = start_date.strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+        fig["layout"]["xaxis"]["range"][1] = end_date.strftime(format="%Y-%m-%dT%H:%M:%S.%f")
+        fig["layout"]["xaxis"]["autorange"] = False
 
     return fail_error_msg
