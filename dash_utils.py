@@ -369,7 +369,7 @@ def calculate_calibration_period_based_on_user_action(df: pd.DataFrame, relayout
     return calibration_period
 
 
-def date_sanity_checker(df: pd.DataFrame, start_date_str: str, end_date_str: str) -> str:
+def date_format_sanity_checker(df: pd.DataFrame, start_date_str: str, end_date_str: str) -> str:
 
     fail_error_msg = None
 
@@ -383,5 +383,47 @@ def date_sanity_checker(df: pd.DataFrame, start_date_str: str, end_date_str: str
     except ValueError:
         logger.error("Invalid end date format")
         fail_error_msg = "Invalid end date format. Unable to filter date range."
+
+    return fail_error_msg
+
+
+def date_range_sanity_checker(df: pd.DataFrame, start_date_str: str, end_date_str: str) -> str:
+
+    fail_error_msg = None
+    start_date = pd.to_datetime(start_date_str, format="%Y-%m-%dT%H:%M:%S.%f")
+    end_date = pd.to_datetime(end_date_str, format="%Y-%m-%dT%H:%M:%S.%f")
+
+    if start_date:
+        if (df.index[0] > start_date) or (df.index[-1] < start_date):
+            fail_error_msg = "Given start date is out of timeseries' range"
+    if end_date:
+        if (df.index[-1] < end_date) or (df.index[0] > end_date):
+            fail_error_msg = "Given end date is out of timeseries' range"
+
+    return fail_error_msg
+
+
+def filter_chart_on_daterange(fig, df, start_date_str: str, end_date_str: str) -> str:
+
+    fail_error_msg = None
+    start_date = pd.to_datetime(start_date_str, format="%Y-%m-%dT%H:%M:%S.%f")
+    end_date = pd.to_datetime(end_date_str, format="%Y-%m-%dT%H:%M:%S.%f")
+
+    if (start_date is None) and (end_date is None):
+        fail_error_msg = "Start date and end date are equal. Unable to filter date range."
+
+    if start_date is None:
+        start_date = df.index[0]
+    if end_date is None:
+        end_date = df.index[-1]
+
+    if start_date == end_date:
+        fail_error_msg = "Start date and end date are equal. Unable to filter date range."
+    
+    if start_date > end_date:
+        fail_error_msg = "Start date is greater than end date. Unable to filter date range."
+    
+    if fail_error_msg is None:
+        fig.update_layout(dict(xaxis_range=[start_date,end_date]))
 
     return fail_error_msg

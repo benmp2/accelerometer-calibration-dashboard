@@ -198,8 +198,8 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
         raise PreventUpdate
 
     df = dash_utils.load_df_from_local_storage(json_data)
-    
-    fail_div=None
+
+    fail_div_msg = None
 
     if (n_clicks is not None) and (fig is not None):
         # TODO:
@@ -208,12 +208,18 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
         # - if all clear then filter df for figure?
         # - trigger relayoutData by modifying existing fig object,
         #   which in turn triggers the calibration period calculation
-        fail_div = dash_utils.date_sanity_checker(df, start_date_str, end_date_str)
-        
+        fail_div_msg = dash_utils.date_format_sanity_checker(df, start_date_str, end_date_str)
+
+        if fail_div_msg is None:
+            fail_div_msg = dash_utils.date_range_sanity_checker(df, start_date_str, end_date_str)
+
+        if fail_div_msg is None:
+            fail_div_msg = dash_utils.filter_chart_on_daterange(fig, df, start_date_str, end_date_str)
+
     else:
         fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
 
-    return fig,fail_div
+    return fig, fail_div_msg
 
 
 @app.callback(
