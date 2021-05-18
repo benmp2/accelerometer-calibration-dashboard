@@ -205,7 +205,7 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
     relayoutData = None
 
     if (n_clicks is not None) and (fig is not None):
-        # this should be refactored:
+        # TODO: this should be refactored:
         # - make sure input dates are in the correct format
         # - date filtering is with in df index range
         # - if all clear then filter df for figure?
