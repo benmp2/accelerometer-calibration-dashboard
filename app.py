@@ -293,16 +293,22 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data, calibration_period_
     calibration_json = dash_utils.accelerations_csv_to_json(acceleration_data, json_attribute="downTimeCalibrationData", file_path=None)
 
     azure_func_url = os.environ.get("AZURE_FUNC_URL", "http://localhost:7071")
-    r = requests.post(
-        f"{azure_func_url}/api/MHPDT_cross_validation",
-        headers={"Content-Type": "application/json"},
-        json=calibration_json,
-    )
 
     try:
-        calibration_result = r.json()
-    except ValueError:
-        calibration_result = r.text
+        r = requests.post(
+            f"{azure_func_url}/api/MHPDT_cross_validation",
+            headers={"Content-Type": "application/json"},
+            json=calibration_json,
+        )
+    except requests.exceptions.RequestException as e:
+        calibration_result = "Unable to connect to server hosting azure functions."
+        r=None
+    
+    if r:    
+        try:
+            calibration_result = r.json()
+        except ValueError:
+            calibration_result = r.text
 
     str_result = str(calibration_result)
     return html.Div(str_result, style={"margin-left": "80px"})
