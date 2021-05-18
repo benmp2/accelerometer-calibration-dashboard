@@ -14,8 +14,7 @@ import plotly.io
 
 plotly.io.templates.default = "plotly_white"
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def magnitude_highpass(df: pd.DataFrame, axes: List = ["x", "y", "z"], window_size: str = "3s") -> np.array:
@@ -372,4 +371,14 @@ def calculate_calibration_period_based_on_user_action(df: pd.DataFrame, relayout
 
 def date_sanity_checker(df: pd.DataFrame, start_date_str: str, end_date_str: str) -> bool:
 
+    try:
+        start_date = pd.to_datetime(start_date_str,format="%Y-%m-%dT%H:%M:%S.%f")
+    except ValueError:
+        logger.error("Invalid start date format")
+
+    try:
+        end_date = pd.to_datetime(end_date_str,format="%Y-%m-%dT%H:%M:%S.%f")
+    except ValueError:
+        logger.error("Invalid end date format")
+    
     pass
