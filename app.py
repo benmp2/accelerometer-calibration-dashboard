@@ -207,10 +207,10 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
     if (n_clicks is not None) and (fig is not None):
         # TODO: this should be refactored:
         # - make sure input dates are in the correct format
-        # - date filtering is with in df index range
-        # - if all clear then filter df for figure?
-        # - trigger relayoutData by modifying existing fig object,
-        #   which in turn triggers the calibration period calculation
+        # - date filtering is within allowed range
+        # - if all clear select specified range
+        # - trigger relayoutData by specifying new range with "xaxis.range"
+
         fail_div_msg = dash_utils.date_format_sanity_checker(df, start_date_str, end_date_str)
 
         if fail_div_msg is None:
