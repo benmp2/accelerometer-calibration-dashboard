@@ -370,6 +370,6 @@ def calculate_calibration_period_based_on_user_action(df: pd.DataFrame, relayout
     return calibration_period
 
 
-def date_sanity_checker(df: pd.Dataframe, start_date_str: str, end_date_str: str) -> bool:
+def date_sanity_checker(df: pd.DataFrame, start_date_str: str, end_date_str: str) -> bool:
 
     pass
