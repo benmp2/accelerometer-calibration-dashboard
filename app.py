@@ -135,6 +135,22 @@ app.layout = html.Div(
                                 dcc.Graph(id="apply-mhpdt-calibration-to-all-graph"),
                             ],
                         ),
+                        # TODO complete custom model:
+                        html.Hr(),
+                        html.Div(
+                            id="custom-mhpdt-model-input-div",
+                            children=[
+                                dcc.Input(id="mhpdt-threshold", placeholder="MHPDT threshold"),
+                                dcc.Input(id="mhpdt-threshold-2", placeholder="MHPDT threshold,2"),
+                                html.Button(id="apply-mhpdt-model-button", children="Apply custom MHPDT model"),
+                            ],
+                            style={"margin-left": "80px", "display": "inline-block", "width": "25%"},
+                        ),
+                        dcc.Loading(
+                            id="mhpdt-custom_model-loading",
+                            type="circle",
+                            children=[html.Div(id="mhpdt-applied-parameters-div"), dcc.Graph(id="mhpdt-custom-model-graph")],
+                        ),
                     ],
                 ),
             ],
