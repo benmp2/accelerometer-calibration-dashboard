@@ -425,8 +425,6 @@ def filter_chart_on_daterange(fig, df, start_date_str: str, end_date_str: str) -
         fail_error_msg = "Start date is greater than end date. Unable to filter date range."
 
     if fail_error_msg is None:
-        # fig = go.Figure(fig)
-        # fig.update_layout(dict(xaxis_range=[start_date, end_date]))
         fig["layout"]["xaxis"]["range"][0] = start_date.strftime(format="%Y-%m-%dT%H:%M:%S.%f")
         fig["layout"]["xaxis"]["range"][1] = end_date.strftime(format="%Y-%m-%dT%H:%M:%S.%f")
         fig["layout"]["xaxis"]["autorange"] = False
