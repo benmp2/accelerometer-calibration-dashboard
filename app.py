@@ -94,14 +94,15 @@ app.layout = html.Div(
                                     children=[
                                         dcc.Input(
                                             id="calibration-filter-start-date",
-                                            placeholder="Start date (format: 2021-05-10T07:26:15.631148Z)",
+                                            placeholder="Start date (format: 2021-05-10 07:26:15.631)",
                                             style={"width": "400px", "margin-right": "10px"},
                                         ),
                                         dcc.Input(
                                             id="calibration-filter-end-date",
-                                            placeholder="End date (format: 2021-05-10T07:41:20.631148Z)",
+                                            placeholder="End date (format: 2021-05-10 07:41:20.631)",
                                             style={"width": "400px"},
                                         ),
+                                        html.Div(id="incorrect-filter-range-div"),
                                     ],
                                     style={"margin-bottom": "10px"},
                                 ),
@@ -179,7 +180,10 @@ def update_mhp_chart(json_data):
 
 
 @app.callback(
-    Output(component_id="fig_with_rangeselector", component_property="figure"),
+    [
+        Output(component_id="fig_with_rangeselector", component_property="figure"),
+        Output(component_id="incorrect-filter-range-div", component_property="children"),
+    ],
     [
         Input(component_id="dataframe-json-storage", component_property="data"),
         Input(component_id="calibration-date-filter-button", component_property="n_clicks"),
@@ -194,6 +198,8 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
         raise PreventUpdate
 
     df = dash_utils.load_df_from_local_storage(json_data)
+    
+    fail_div=None
 
     if (n_clicks is not None) and (fig is not None):
         # TODO:
@@ -202,11 +208,12 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
         # - if all clear then filter df for figure?
         # - trigger relayoutData by modifying existing fig object,
         #   which in turn triggers the calibration period calculation
-        pass
+        fail_div = dash_utils.date_sanity_checker(df, start_date_str, end_date_str)
+        
     else:
         fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
 
-    return fig
+    return fig,fail_div
 
 
 @app.callback(
