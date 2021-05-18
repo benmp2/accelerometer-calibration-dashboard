@@ -302,9 +302,9 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data, calibration_period_
         )
     except requests.exceptions.RequestException as e:
         calibration_result = "Unable to connect to server hosting azure functions."
-        r=None
-    
-    if r:    
+        r = None
+
+    if r:
         try:
             calibration_result = r.json()
         except ValueError:
