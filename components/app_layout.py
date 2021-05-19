@@ -326,10 +326,10 @@ def details_custom_model_param() -> html.Details:
                             dcc.RadioItems(
                                 id="mhpdt-filter-order-radioitems",
                                 options=[
-                                    {"label": "Down", "value": "Down"},
-                                    {"label": "Up", "value": "Up"},
+                                    {"label": "Down", "value": "down"},
+                                    {"label": "Up", "value": "up"},
                                 ],
-                                value="Down",
+                                value="down",
                                 style={"margin-left": "20px"},
                             ),
                         ],
@@ -345,10 +345,10 @@ def details_custom_model_param() -> html.Details:
                             dcc.RadioItems(
                                 id="mhpdt-period-to-use-radioitems",
                                 options=[
-                                    {"label": "Whole period", "value": "Full"},
-                                    {"label": "Calibration period", "value": "Calibration"},
+                                    {"label": "Whole period", "value": "full"},
+                                    {"label": "Calibration period", "value": "calibration"},
                                 ],
-                                value="Full",
+                                value="full",
                                 style={"margin-left": "20px"},
                             ),
                         ],
