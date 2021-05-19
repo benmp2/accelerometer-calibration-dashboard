@@ -194,6 +194,7 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data, calibration_period_
 
     azure_func_url = os.environ.get("AZURE_FUNC_URL", "http://localhost:7071")
 
+    calibration_result=None
     try:
         r = requests.post(
             f"{azure_func_url}/api/MHPDT_cross_validation",
