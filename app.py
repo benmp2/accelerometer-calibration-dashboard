@@ -239,10 +239,32 @@ app.layout = html.Div(
                                     ],
                                     style={"margin-bottom": "20px", "width": "35%"},
                                 ),
+                                html.Div(
+                                    id="mhpdt-filter-order-div",
+                                    children=[
+                                        html.Div(
+                                            id="mhpdt-filter-order-text-div",
+                                            children=dcc.Markdown("* **Filtering order**"),
+                                            style={"display": "inline-block", "margin-right": "20px"},
+                                        ),
+                                        dcc.RadioItems(
+                                            id="mhpdt-filter-order-radioitems",
+                                            options=[
+                                                {"label": "Down", "value": "Down"},
+                                                {"label": "Up", "value": "Up"},
+                                            ],
+                                            value="Down",
+                                            style={"margin-left": "20px"},
+                                            # labelStyle={"display": "inline-block"},
+                                        ),
+                                    ],
+                                    style={"margin-bottom": "20px", "width": "35%"},
+                                ),
                                 html.Button(
                                     id="apply-mhpdt-model-button", children="Apply custom MHPDT model", style={"margin-top": "10px"}
                                 ),
                             ],
+                            # Filtering order
                             # 'model_params': {'mhp_threshold': 0.294,
                             # 'min_cycle_time': 0,
                             # 'andon_uptime_threshold': 5,
