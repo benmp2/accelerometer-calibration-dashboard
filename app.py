@@ -13,7 +13,7 @@ import charts
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-import components.tab_layouts as tab_layouts
+import components.dashboard_layout as layout
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +34,9 @@ app.layout = html.Div(
             value="upload-data-tab",
             vertical=False,
             children=[
-                tab_layouts.upload_tab(),
-                tab_layouts.acceleration_charts_tab(),
-                tab_layouts.mhpdt_calibration_tab(),
+                layout.tab_upload(),
+                layout.tab_acceleration_charts(),
+                layout.tab_mhpdt_calibration(),
             ],
         ),
         dcc.Store(id="dataframe-json-storage"),

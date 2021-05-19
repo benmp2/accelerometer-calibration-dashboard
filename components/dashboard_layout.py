@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 
-def upload_tab() -> dcc.Tab:
+def tab_upload() -> dcc.Tab:
 
     tab = dcc.Tab(
         value="upload-data-tab",
@@ -31,7 +31,7 @@ def upload_tab() -> dcc.Tab:
     return tab
 
 
-def acceleration_charts_tab() -> dcc.Tab:
+def tab_acceleration_charts() -> dcc.Tab:
 
     tab = dcc.Tab(
         value="acceleration-charts-tab",
@@ -59,7 +59,7 @@ def acceleration_charts_tab() -> dcc.Tab:
     return tab
 
 
-def mhpdt_calibration_tab() -> dcc.Tab:
+def tab_mhpdt_calibration() -> dcc.Tab:
     tab = dcc.Tab(
         value="dt-calibration-tab",
         label="MHPDT calibration",
@@ -71,23 +71,7 @@ def mhpdt_calibration_tab() -> dcc.Tab:
                 id="calibration-filter-div",
                 children=[
                     html.Hr(),
-                    html.Div(
-                        id="calibration-filter-inputs",
-                        children=[
-                            dcc.Input(
-                                id="calibration-filter-start-date",
-                                placeholder="Start date (format: 2021-05-10 07:26:15.631)",
-                                style={"width": "400px", "margin-right": "10px"},
-                            ),
-                            dcc.Input(
-                                id="calibration-filter-end-date",
-                                placeholder="End date (format: 2021-05-10 07:41:20.631)",
-                                style={"width": "400px"},
-                            ),
-                            html.Div(id="incorrect-filter-range-div"),
-                        ],
-                        style={"margin-bottom": "10px"},
-                    ),
+                    div_calibration_filter_input(),
                     html.Button(id="calibration-date-filter-button", children="Apply date filter"),
                     html.Div(id="calibration-filter-success"),
                 ],
@@ -115,18 +99,39 @@ def mhpdt_calibration_tab() -> dcc.Tab:
                 ],
             ),
             html.Hr(),
-            custom_model_div(),
+            div_custom_model(),
         ],
     )
 
     return tab
 
 
-def custom_model_div() -> html.Div:
+def div_calibration_filter_input() -> html.Div:
+    div = html.Div(
+        id="calibration-filter-inputs",
+        children=[
+            dcc.Input(
+                id="calibration-filter-start-date",
+                placeholder="Start date (format: 2021-05-10 07:26:15.631)",
+                style={"width": "400px", "margin-right": "10px"},
+            ),
+            dcc.Input(
+                id="calibration-filter-end-date",
+                placeholder="End date (format: 2021-05-10 07:41:20.631)",
+                style={"width": "400px"},
+            ),
+            html.Div(id="incorrect-filter-range-div"),
+        ],
+        style={"margin-bottom": "10px"},
+    )
+    return div
+
+
+def div_custom_model() -> html.Div:
     div = html.Div(
         id="custom-mhpdt-model-input-div",
         children=[
-            custom_model_param_details(),
+            details_custom_model_param(),
             html.Div(
                 [
                     html.Button(
@@ -175,7 +180,7 @@ def custom_model_div() -> html.Div:
     return div
 
 
-def custom_model_param_details() -> html.Details:
+def details_custom_model_param() -> html.Details:
     details = html.Details(
         id="mhpdt-custom-model-params-details",
         open=True,
