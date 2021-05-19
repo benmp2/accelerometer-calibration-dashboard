@@ -155,6 +155,7 @@ def div_custom_model() -> html.Div:
                         style={"display": "inline-block"},
                     ),
                     dcc.Checklist(
+                        id="plot-custom-mhpdt-model-checklist",
                         options=[
                             {"label": "Add to existing chart", "value": "add-to-chart"},
                         ],
