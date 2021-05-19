@@ -52,7 +52,7 @@ def andon_prediction_with_filtering(df, params):
     up_filter_size = str(params['model_params']["up_filter_size"]) + 's'
     down_filter_size = str(params['model_params']["down_filter_size"]) + 's'
     prediction_df = micro_filter.filtering(prediction_df, andon_flag='state', up_filter_size=up_filter_size,
-                              down_filter_size=down_filter_size, first_filter=params['model_params']["first_filter"])
+                              down_filter_size=down_filter_size, first_filter=params['model_params'].get("first_filter","down"))
 
     return prediction_df
 
