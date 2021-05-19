@@ -81,7 +81,7 @@ app.layout = html.Div(
                 ),
                 dcc.Tab(
                     value="dt-calibration-tab",
-                    label="Remote MHPDT calibration",
+                    label="MHPDT calibration",
                     children=[
                         html.Hr(),
                         dcc.Loading(id="fig_with_rangeselector-loading", type="circle", children=dcc.Graph(id="fig_with_rangeselector")),
