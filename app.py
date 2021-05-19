@@ -142,6 +142,7 @@ app.layout = html.Div(
                             children=[
                                 html.Details(
                                     id="mhpdt-custom-model-params-details",
+                                    open=True,
                                     children=[
                                         html.Summary(
                                             id="custom-mhpdt-model-details-summary",
@@ -275,19 +276,42 @@ app.layout = html.Div(
                                             id="mhpdt-filter-order-div",
                                             children=[
                                                 html.Div(
-                                                    id="mhpdt-filter-order-text-div",
-                                                    children=dcc.Markdown("* **Filtering order**"),
-                                                    style={"display": "inline-block", "margin-right": "20px"},
-                                                ),
-                                                dcc.RadioItems(
-                                                    id="mhpdt-filter-order-radioitems",
-                                                    options=[
-                                                        {"label": "Down", "value": "Down"},
-                                                        {"label": "Up", "value": "Up"},
+                                                    [
+                                                        html.Div(
+                                                            id="mhpdt-filter-order-text-div",
+                                                            children=dcc.Markdown("* **Filtering order**"),
+                                                            style={"display": "inline-block", "margin-right": "20px"},
+                                                        ),
+                                                        dcc.RadioItems(
+                                                            id="mhpdt-filter-order-radioitems",
+                                                            options=[
+                                                                {"label": "Down", "value": "Down"},
+                                                                {"label": "Up", "value": "Up"},
+                                                            ],
+                                                            value="Down",
+                                                            style={"margin-left": "20px"},
+                                                        ),
                                                     ],
-                                                    value="Down",
-                                                    style={"margin-left": "20px"},
-                                                    # labelStyle={"display": "inline-block"},
+                                                    style={"display": "inline-block"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            id="mhpdt-period-to-use-text-div",
+                                                            children=dcc.Markdown("* **Period to use**"),
+                                                            style={"display": "inline-block", "margin-right": "20px"},
+                                                        ),
+                                                        dcc.RadioItems(
+                                                            id="mhpdt-period-to-use-radioitems",
+                                                            options=[
+                                                                {"label": "Whole period", "value": "Full"},
+                                                                {"label": "Calibration period", "value": "Calibration"},
+                                                            ],
+                                                            value="Full",
+                                                            style={"margin-left": "20px"},
+                                                        ),
+                                                    ],
+                                                    style={"display": "inline-block"},
                                                 ),
                                             ],
                                             style={"margin-bottom": "20px", "width": "35%"},
@@ -295,11 +319,39 @@ app.layout = html.Div(
                                     ],
                                     style={"margin-left": "80px"},  # , "display": "inline-block"}, #"width": "49%"},
                                 ),
-                                html.Button(
-                                    id="apply-mhpdt-model-button",
-                                    children="Apply custom MHPDT model",
+                                html.Div(
+                                    [
+                                        html.Button(
+                                            id="plot-custom-mhpdt-model-button",
+                                            children="Plot custom MHPDT model",
+                                            style={"display": "inline-block"},
+                                        ),
+                                        dcc.Checklist(
+                                            options=[
+                                                {"label": "Add to existing chart", "value": "add-to-chart"},
+                                            ],
+                                            value=["add-to-chart"],
+                                            style={"margin-left": "20px", "display": "inline-block"},
+                                        ),
+                                    ],
                                     style={"margin-top": "10px", "margin-left": "80px"},
                                 ),
+                                html.Div(
+                                    [
+                                        html.Button(
+                                            id="load-calibration-params-to-mhpdt-custom-model-button",
+                                            children="Load calibration parameters",
+                                            style={"display": "inline-block"},
+                                        ),
+                                        html.Button(
+                                            id="clear-mhpdt-custom-model-chart-button",
+                                            children="Clear chart",
+                                            style={"margin-left": "20px", "display": "inline-block"},
+                                        ),
+                                    ],
+                                    style={"margin-top": "10px", "margin-left": "80px"},
+                                ),
+                                html.Div(id="custom-mhpdt-error-div"),
                                 dcc.Loading(
                                     id="mhpdt-custom_model-loading",
                                     type="circle",
