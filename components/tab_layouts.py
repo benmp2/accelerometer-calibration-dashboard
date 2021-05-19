@@ -115,234 +115,245 @@ def mhpdt_calibration_tab() -> dcc.Tab:
                 ],
             ),
             html.Hr(),
-            html.Div(
-                id="custom-mhpdt-model-input-div",
-                children=[
-                    html.Details(
-                        id="mhpdt-custom-model-params-details",
-                        open=True,
-                        children=[
-                            html.Summary(
-                                id="custom-mhpdt-model-details-summary",
-                                children=dcc.Markdown("##### MHPDT model parameters", style={"display": "inline-block"}),
-                            ),
-                            html.Div(
-                                id="mhpdt-threshold-div",
-                                children=[
-                                    html.Div(
-                                        id="mhpdt-threshold-text-div",
-                                        children=dcc.Markdown("* **Threshold** - `range: [0.0, 15.0]`"),
-                                        style={"display": "inline-block", "margin-right": "20px"},
-                                    ),
-                                    dcc.Input(
-                                        id="mhpdt-threshold-input",
-                                        type="number",
-                                        min=0,
-                                        max=15,
-                                        value=0.1,
-                                        style={
-                                            "width": "150px",
-                                            "display": "inline-block",
-                                            "margin-right": "20px",
-                                            "float": "right",
-                                        },
-                                    ),
-                                ],
-                                style={"margin-bottom": "20px", "width": "35%"},
-                            ),
-                            html.Div(
-                                id="mhpdt-min-cycle-time-div",
-                                children=[
-                                    html.Div(
-                                        id="mhpdt-min-cycle-time-text-div",
-                                        children=dcc.Markdown("* **Min-cycle-time** \[sec\] - `range: [0, 100]`"),
-                                        style={"display": "inline-block", "margin-right": "20px"},
-                                    ),
-                                    dcc.Input(
-                                        id="mhpdt-min-cycle-time-input",
-                                        type="number",
-                                        min=0,
-                                        max=100,
-                                        step=1,
-                                        value=0,
-                                        style={
-                                            "width": "150px",
-                                            "display": "inline-block",
-                                            "margin-right": "20px",
-                                            "float": "right",
-                                        },
-                                    ),
-                                ],
-                                style={"margin-bottom": "20px", "width": "35%"},
-                            ),
-                            html.Div(
-                                id="mhpdt-andon-uptime-threshold-div",
-                                children=[
-                                    html.Div(
-                                        id="mhpdt-andon-uptime-threshold-text-div",
-                                        children=dcc.Markdown("* **Andon uptime** \[sec\] - `range: [0, 100]`"),
-                                        style={"display": "inline-block", "margin-right": "20px"},
-                                    ),
-                                    dcc.Input(
-                                        id="mhpdt-andon-uptime-threshold-input",
-                                        type="number",
-                                        min=0,
-                                        max=100,
-                                        step=1,
-                                        value=5,
-                                        style={
-                                            "width": "150px",
-                                            "display": "inline-block",
-                                            "margin-right": "20px",
-                                            "float": "right",
-                                        },
-                                    ),
-                                ],
-                                style={"margin-bottom": "20px", "width": "35%"},
-                            ),
-                            html.Div(
-                                id="mhpdt-uptime-filter-div",
-                                children=[
-                                    html.Div(
-                                        id="mhpdt-uptime-filter-text-div",
-                                        children=dcc.Markdown("* **Uptime filter** \[sec\] - `range: [0, 120]`"),
-                                        style={"display": "inline-block", "margin-right": "20px"},
-                                    ),
-                                    dcc.Input(
-                                        id="mhpdt-uptime-filter-input",
-                                        type="number",
-                                        min=0,
-                                        max=120,
-                                        step=1,
-                                        value=0,
-                                        style={
-                                            "width": "150px",
-                                            "display": "inline-block",
-                                            "margin-right": "20px",
-                                            "float": "right",
-                                        },
-                                    ),
-                                ],
-                                style={"margin-bottom": "20px", "width": "35%"},
-                            ),
-                            html.Div(
-                                id="mhpdt-downtime-filter-div",
-                                children=[
-                                    html.Div(
-                                        id="mhpdt-downtime-filter-text-div",
-                                        children=dcc.Markdown("* **Downtime filter** \[sec\] - `range: [0, 120]`"),
-                                        style={"display": "inline-block", "margin-right": "20px"},
-                                    ),
-                                    dcc.Input(
-                                        id="mhpdt-downtime-filter-input",
-                                        type="number",
-                                        min=0,
-                                        max=120,
-                                        step=1,
-                                        value=0,
-                                        style={
-                                            "width": "150px",
-                                            "display": "inline-block",
-                                            "margin-right": "20px",
-                                            "float": "right",
-                                        },
-                                    ),
-                                ],
-                                style={"margin-bottom": "20px", "width": "35%"},
-                            ),
-                            html.Div(
-                                id="mhpdt-filter-order-div",
-                                children=[
-                                    html.Div(
-                                        [
-                                            html.Div(
-                                                id="mhpdt-filter-order-text-div",
-                                                children=dcc.Markdown("* **Filtering order**"),
-                                                style={"display": "inline-block", "margin-right": "20px"},
-                                            ),
-                                            dcc.RadioItems(
-                                                id="mhpdt-filter-order-radioitems",
-                                                options=[
-                                                    {"label": "Down", "value": "Down"},
-                                                    {"label": "Up", "value": "Up"},
-                                                ],
-                                                value="Down",
-                                                style={"margin-left": "20px"},
-                                            ),
-                                        ],
-                                        style={"display": "inline-block"},
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.Div(
-                                                id="mhpdt-period-to-use-text-div",
-                                                children=dcc.Markdown("* **Period to use**"),
-                                                style={"display": "inline-block", "margin-right": "20px"},
-                                            ),
-                                            dcc.RadioItems(
-                                                id="mhpdt-period-to-use-radioitems",
-                                                options=[
-                                                    {"label": "Whole period", "value": "Full"},
-                                                    {"label": "Calibration period", "value": "Calibration"},
-                                                ],
-                                                value="Full",
-                                                style={"margin-left": "20px"},
-                                            ),
-                                        ],
-                                        style={"display": "inline-block"},
-                                    ),
-                                ],
-                                style={"margin-bottom": "20px", "width": "35%"},
-                            ),
-                        ],
-                        style={"margin-left": "80px"},
-                    ),
-                    html.Div(
-                        [
-                            html.Button(
-                                id="plot-custom-mhpdt-model-button",
-                                children="Plot custom MHPDT model",
-                                style={"display": "inline-block"},
-                            ),
-                            dcc.Checklist(
-                                options=[
-                                    {"label": "Add to existing chart", "value": "add-to-chart"},
-                                ],
-                                value=["add-to-chart"],
-                                style={"margin-left": "20px", "display": "inline-block"},
-                            ),
-                        ],
-                        style={"margin-top": "10px", "margin-left": "80px"},
-                    ),
-                    html.Div(
-                        [
-                            html.Button(
-                                id="load-calibration-params-to-mhpdt-custom-model-button",
-                                children="Load calibration parameters",
-                                style={"display": "inline-block"},
-                            ),
-                            html.Button(
-                                id="clear-mhpdt-custom-model-chart-button",
-                                children="Clear chart",
-                                style={"margin-left": "20px", "display": "inline-block"},
-                            ),
-                            html.Button(
-                                id="reset-mhpdt-custom-model-default-params-button",
-                                children="Reset to default model",
-                                style={"margin-left": "20px", "display": "inline-block"},
-                            ),
-                        ],
-                        style={"margin-top": "10px", "margin-left": "80px"},
-                    ),
-                    html.Div(id="custom-mhpdt-error-div"),
-                    dcc.Loading(
-                        id="mhpdt-custom_model-loading",
-                        type="circle",
-                        children=[html.Div(id="mhpdt-applied-parameters-div"), dcc.Graph(id="mhpdt-custom-model-graph")],
-                    ),
-                ],
-            ),
+            custom_model_div(),
         ],
     )
 
     return tab
+
+
+def custom_model_div() -> html.Div:
+    div = html.Div(
+        id="custom-mhpdt-model-input-div",
+        children=[
+            custom_model_param_details(),
+            html.Div(
+                [
+                    html.Button(
+                        id="plot-custom-mhpdt-model-button",
+                        children="Plot custom MHPDT model",
+                        style={"display": "inline-block"},
+                    ),
+                    dcc.Checklist(
+                        options=[
+                            {"label": "Add to existing chart", "value": "add-to-chart"},
+                        ],
+                        value=["add-to-chart"],
+                        style={"margin-left": "20px", "display": "inline-block"},
+                    ),
+                ],
+                style={"margin-top": "10px", "margin-left": "80px"},
+            ),
+            html.Div(
+                [
+                    html.Button(
+                        id="load-calibration-params-to-mhpdt-custom-model-button",
+                        children="Load calibration parameters",
+                        style={"display": "inline-block"},
+                    ),
+                    html.Button(
+                        id="clear-mhpdt-custom-model-chart-button",
+                        children="Clear chart",
+                        style={"margin-left": "20px", "display": "inline-block"},
+                    ),
+                    html.Button(
+                        id="reset-mhpdt-custom-model-default-params-button",
+                        children="Reset to default model",
+                        style={"margin-left": "20px", "display": "inline-block"},
+                    ),
+                ],
+                style={"margin-top": "10px", "margin-left": "80px"},
+            ),
+            html.Div(id="custom-mhpdt-error-div"),
+            dcc.Loading(
+                id="mhpdt-custom_model-loading",
+                type="circle",
+                children=[html.Div(id="mhpdt-applied-parameters-div"), dcc.Graph(id="mhpdt-custom-model-graph")],
+            ),
+        ],
+    )
+    return div
+
+
+def custom_model_param_details() -> html.Details:
+    details = html.Details(
+        id="mhpdt-custom-model-params-details",
+        open=True,
+        children=[
+            html.Summary(
+                id="custom-mhpdt-model-details-summary",
+                children=dcc.Markdown("##### MHPDT model parameters", style={"display": "inline-block"}),
+            ),
+            html.Div(
+                id="mhpdt-threshold-div",
+                children=[
+                    html.Div(
+                        id="mhpdt-threshold-text-div",
+                        children=dcc.Markdown("* **Threshold** - `range: [0.0, 15.0]`"),
+                        style={"display": "inline-block", "margin-right": "20px"},
+                    ),
+                    dcc.Input(
+                        id="mhpdt-threshold-input",
+                        type="number",
+                        min=0,
+                        max=15,
+                        value=0.1,
+                        style={
+                            "width": "150px",
+                            "display": "inline-block",
+                            "margin-right": "20px",
+                            "float": "right",
+                        },
+                    ),
+                ],
+                style={"margin-bottom": "20px", "width": "35%"},
+            ),
+            html.Div(
+                id="mhpdt-min-cycle-time-div",
+                children=[
+                    html.Div(
+                        id="mhpdt-min-cycle-time-text-div",
+                        children=dcc.Markdown("* **Min-cycle-time** \[sec\] - `range: [0, 100]`"),
+                        style={"display": "inline-block", "margin-right": "20px"},
+                    ),
+                    dcc.Input(
+                        id="mhpdt-min-cycle-time-input",
+                        type="number",
+                        min=0,
+                        max=100,
+                        step=1,
+                        value=0,
+                        style={
+                            "width": "150px",
+                            "display": "inline-block",
+                            "margin-right": "20px",
+                            "float": "right",
+                        },
+                    ),
+                ],
+                style={"margin-bottom": "20px", "width": "35%"},
+            ),
+            html.Div(
+                id="mhpdt-andon-uptime-threshold-div",
+                children=[
+                    html.Div(
+                        id="mhpdt-andon-uptime-threshold-text-div",
+                        children=dcc.Markdown("* **Andon uptime** \[sec\] - `range: [0, 100]`"),
+                        style={"display": "inline-block", "margin-right": "20px"},
+                    ),
+                    dcc.Input(
+                        id="mhpdt-andon-uptime-threshold-input",
+                        type="number",
+                        min=0,
+                        max=100,
+                        step=1,
+                        value=5,
+                        style={
+                            "width": "150px",
+                            "display": "inline-block",
+                            "margin-right": "20px",
+                            "float": "right",
+                        },
+                    ),
+                ],
+                style={"margin-bottom": "20px", "width": "35%"},
+            ),
+            html.Div(
+                id="mhpdt-uptime-filter-div",
+                children=[
+                    html.Div(
+                        id="mhpdt-uptime-filter-text-div",
+                        children=dcc.Markdown("* **Uptime filter** \[sec\] - `range: [0, 120]`"),
+                        style={"display": "inline-block", "margin-right": "20px"},
+                    ),
+                    dcc.Input(
+                        id="mhpdt-uptime-filter-input",
+                        type="number",
+                        min=0,
+                        max=120,
+                        step=1,
+                        value=0,
+                        style={
+                            "width": "150px",
+                            "display": "inline-block",
+                            "margin-right": "20px",
+                            "float": "right",
+                        },
+                    ),
+                ],
+                style={"margin-bottom": "20px", "width": "35%"},
+            ),
+            html.Div(
+                id="mhpdt-downtime-filter-div",
+                children=[
+                    html.Div(
+                        id="mhpdt-downtime-filter-text-div",
+                        children=dcc.Markdown("* **Downtime filter** \[sec\] - `range: [0, 120]`"),
+                        style={"display": "inline-block", "margin-right": "20px"},
+                    ),
+                    dcc.Input(
+                        id="mhpdt-downtime-filter-input",
+                        type="number",
+                        min=0,
+                        max=120,
+                        step=1,
+                        value=0,
+                        style={
+                            "width": "150px",
+                            "display": "inline-block",
+                            "margin-right": "20px",
+                            "float": "right",
+                        },
+                    ),
+                ],
+                style={"margin-bottom": "20px", "width": "35%"},
+            ),
+            html.Div(
+                id="mhpdt-filter-order-div",
+                children=[
+                    html.Div(
+                        [
+                            html.Div(
+                                id="mhpdt-filter-order-text-div",
+                                children=dcc.Markdown("* **Filtering order**"),
+                                style={"display": "inline-block", "margin-right": "20px"},
+                            ),
+                            dcc.RadioItems(
+                                id="mhpdt-filter-order-radioitems",
+                                options=[
+                                    {"label": "Down", "value": "Down"},
+                                    {"label": "Up", "value": "Up"},
+                                ],
+                                value="Down",
+                                style={"margin-left": "20px"},
+                            ),
+                        ],
+                        style={"display": "inline-block"},
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                id="mhpdt-period-to-use-text-div",
+                                children=dcc.Markdown("* **Period to use**"),
+                                style={"display": "inline-block", "margin-right": "20px"},
+                            ),
+                            dcc.RadioItems(
+                                id="mhpdt-period-to-use-radioitems",
+                                options=[
+                                    {"label": "Whole period", "value": "Full"},
+                                    {"label": "Calibration period", "value": "Calibration"},
+                                ],
+                                value="Full",
+                                style={"margin-left": "20px"},
+                            ),
+                        ],
+                        style={"display": "inline-block"},
+                    ),
+                ],
+                style={"margin-bottom": "20px", "width": "35%"},
+            ),
+        ],
+        style={"margin-left": "80px"},
+    )
+
+    return details
