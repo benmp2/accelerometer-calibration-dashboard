@@ -135,6 +135,21 @@ def div_custom_model() -> html.Div:
             html.Div(
                 [
                     html.Button(
+                        id="load-calibration-params-to-mhpdt-custom-model-button",
+                        children="Load calibration parameters",
+                        style={"display": "inline-block"},
+                    ),
+                    html.Button(
+                        id="reset-mhpdt-custom-model-default-params-button",
+                        children="Reset to default model",
+                        style={"margin-left": "20px", "display": "inline-block"},
+                    ),
+                ],
+                style={"margin-top": "10px", "margin-left": "80px"},
+            ),
+            html.Div(
+                [
+                    html.Button(
                         id="plot-custom-mhpdt-model-button",
                         children="Plot custom MHPDT model",
                         style={"display": "inline-block"},
@@ -146,24 +161,9 @@ def div_custom_model() -> html.Div:
                         value=["add-to-chart"],
                         style={"margin-left": "20px", "display": "inline-block"},
                     ),
-                ],
-                style={"margin-top": "10px", "margin-left": "80px"},
-            ),
-            html.Div(
-                [
-                    html.Button(
-                        id="load-calibration-params-to-mhpdt-custom-model-button",
-                        children="Load calibration parameters",
-                        style={"display": "inline-block"},
-                    ),
                     html.Button(
                         id="clear-mhpdt-custom-model-chart-button",
                         children="Clear chart",
-                        style={"margin-left": "20px", "display": "inline-block"},
-                    ),
-                    html.Button(
-                        id="reset-mhpdt-custom-model-default-params-button",
-                        children="Reset to default model",
                         style={"margin-left": "20px", "display": "inline-block"},
                     ),
                 ],
