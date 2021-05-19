@@ -170,7 +170,10 @@ def div_custom_model() -> html.Div:
                 ],
                 style={"margin-top": "10px", "margin-left": "80px"},
             ),
-            html.Div(id="custom-mhpdt-error-div"),
+            html.Div(
+                id="custom-mhpdt-error-div",
+                style={"margin-top": "10px", "margin-left": "80px"},
+            ),
             dcc.Loading(
                 id="mhpdt-custom_model-loading",
                 type="circle",
