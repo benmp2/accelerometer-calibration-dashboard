@@ -94,3 +94,19 @@ def generate_mhpdt_calibration_chart(df_calibration, params):
     fig.update_layout(title_text=f"MHPDT calibration result - accuracy score: {calibration_score} %")
 
     return fig
+
+
+def generate_custom_mhpdt_chart(fig, df, params, n_clicks, add_feature_data=True):
+
+    df_transient = utils.add_features_to_df(df[["x", "y", "z"]].copy().round(3), mhp_window_size="6s")
+    df_transient_dropped = utils.drop_transient_mhp_window_sized_data(df_transient, mhp_window_size="6s")
+
+    df_plot = mhpdt_cv.andon_prediction_with_filtering(df_transient_dropped, params)
+
+    if add_feature_data:
+        fig.add_scatter(x=df_plot.index, y=df_plot.mhp, name="mhp")
+
+    legend = f"filtered mhpdt andon model #{int(n_clicks)}"
+    fig.add_scatter(x=df_plot.index, y=df_plot.state_filtered, mode="lines", name=legend)
+
+    return fig
