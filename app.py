@@ -348,6 +348,11 @@ app.layout = html.Div(
                                             children="Clear chart",
                                             style={"margin-left": "20px", "display": "inline-block"},
                                         ),
+                                        html.Button(
+                                            id="reset-mhpdt-custom-model-default-params-button",
+                                            children="Reset to default model",
+                                            style={"margin-left": "20px", "display": "inline-block"},
+                                        ),
                                     ],
                                     style={"margin-top": "10px", "margin-left": "80px"},
                                 ),
