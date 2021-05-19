@@ -140,11 +140,115 @@ app.layout = html.Div(
                         html.Div(
                             id="custom-mhpdt-model-input-div",
                             children=[
-                                dcc.Input(id="mhpdt-threshold", placeholder="MHPDT threshold"),
-                                dcc.Input(id="mhpdt-threshold-2", placeholder="MHPDT threshold,2"),
-                                html.Button(id="apply-mhpdt-model-button", children="Apply custom MHPDT model"),
+                                html.Div(id="mhpdt-custom-model-title-div", children=dcc.Markdown("### MHPDT model parameters")),
+                                html.Div(
+                                    id="mhpdt-threshold-div",
+                                    children=[
+                                        html.Div(
+                                            id="mhpdt-threshold-text-div",
+                                            children=dcc.Markdown("* **Threshold** - `range: [0.0, 15.0]`"),
+                                            style={"display": "inline-block", "margin-right": "20px"},
+                                        ),
+                                        dcc.Input(
+                                            id="mhpdt-threshold-input",
+                                            type="number",
+                                            min=0,
+                                            max=15,
+                                            style={"width": "150px", "display": "inline-block", "margin-right": "20px", "float": "right"},
+                                        ),
+                                    ],
+                                    style={"margin-bottom": "20px", "width": "35%"},
+                                ),
+                                html.Div(
+                                    id="mhpdt-min-cycle-time-div",
+                                    children=[
+                                        html.Div(
+                                            id="mhpdt-min-cycle-time-text-div",
+                                            children=dcc.Markdown("* **Min-cycle-time** \[sec\] - `range: [0, 100]`"),
+                                            style={"display": "inline-block", "margin-right": "20px"},
+                                        ),
+                                        dcc.Input(
+                                            id="mhpdt-min-cycle-time-input",
+                                            type="number",
+                                            min=0,
+                                            max=100,
+                                            step=1,
+                                            value=0,
+                                            style={"width": "150px", "display": "inline-block", "margin-right": "20px", "float": "right"},
+                                        ),
+                                    ],
+                                    style={"margin-bottom": "20px", "width": "35%"},
+                                ),
+                                html.Div(
+                                    id="mhpdt-andon-uptime-threshold-div",
+                                    children=[
+                                        html.Div(
+                                            id="mhpdt-andon-uptime-threshold-text-div",
+                                            children=dcc.Markdown("* **Andon uptime** \[sec\] - `range: [0, 100]`"),
+                                            style={"display": "inline-block", "margin-right": "20px"},
+                                        ),
+                                        dcc.Input(
+                                            id="mhpdt-andon-uptime-threshold-input",
+                                            type="number",
+                                            min=0,
+                                            max=100,
+                                            step=1,
+                                            value=5,
+                                            style={"width": "150px", "display": "inline-block", "margin-right": "20px", "float": "right"},
+                                        ),
+                                    ],
+                                    style={"margin-bottom": "20px", "width": "35%"},
+                                ),
+                                html.Div(
+                                    id="mhpdt-uptime-filter-div",
+                                    children=[
+                                        html.Div(
+                                            id="mhpdt-uptime-filter-text-div",
+                                            children=dcc.Markdown("* **Uptime filter** \[sec\] - `range: [0, 120]`"),
+                                            style={"display": "inline-block", "margin-right": "20px"},
+                                        ),
+                                        dcc.Input(
+                                            id="mhpdt-uptime-filter-input",
+                                            type="number",
+                                            min=0,
+                                            max=120,
+                                            step=1,
+                                            value=0,
+                                            style={"width": "150px", "display": "inline-block", "margin-right": "20px", "float": "right"},
+                                        ),
+                                    ],
+                                    style={"margin-bottom": "20px", "width": "35%"},
+                                ),
+                                html.Div(
+                                    id="mhpdt-downtime-filter-div",
+                                    children=[
+                                        html.Div(
+                                            id="mhpdt-downtime-filter-text-div",
+                                            children=dcc.Markdown("* **Downtime filter** \[sec\] - `range: [0, 120]`"),
+                                            style={"display": "inline-block", "margin-right": "20px"},
+                                        ),
+                                        dcc.Input(
+                                            id="mhpdt-downtime-filter-input",
+                                            type="number",
+                                            min=0,
+                                            max=120,
+                                            step=1,
+                                            value=0,
+                                            style={"width": "150px", "display": "inline-block", "margin-right": "20px", "float": "right"},
+                                        ),
+                                    ],
+                                    style={"margin-bottom": "20px", "width": "35%"},
+                                ),
+                                html.Button(
+                                    id="apply-mhpdt-model-button", children="Apply custom MHPDT model", style={"margin-top": "10px"}
+                                ),
                             ],
-                            style={"margin-left": "80px", "display": "inline-block", "width": "25%"},
+                            # 'model_params': {'mhp_threshold': 0.294,
+                            # 'min_cycle_time': 0,
+                            # 'andon_uptime_threshold': 5,
+                            # 'up_filter_size': 53,
+                            # 'down_filter_size': 109}
+                            style={"margin-left": "80px"},  # , "display": "inline-block"}, #"width": "49%"},
                         ),
                         dcc.Loading(
                             id="mhpdt-custom_model-loading",
