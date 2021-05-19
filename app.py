@@ -249,6 +249,7 @@ def plot_mhpdt_calibration_results(calibration_params, json_data, calibration_pe
         params_json_format = calibration_params["children"].replace("'", '"')
         params = json.loads(params_json_format)
         # generate figure
+        params["model_params"]["first_filter"] = "down"
         fig = charts.generate_mhpdt_calibration_chart(df_calibration, params)
 
         return fig
@@ -320,6 +321,132 @@ def update_evaluate_chart(n_clicks, json_data, eval_expression):
             fig = go.Figure()
 
         return fig
+
+
+@app.callback(
+    [
+        Output(component_id="mhpdt-custom-model-graph", component_property="figure"),
+        Output(component_id="custom-mhpdt-error-div", component_property="children"),
+        Output(component_id="plot-custom-mhpdt-model-button", component_property="n_clicks"),
+    ],
+    [
+        Input(component_id="plot-custom-mhpdt-model-button", component_property="n_clicks"),
+        Input(component_id="clear-mhpdt-custom-model-chart-button", component_property="n_clicks"),
+        State(component_id="mhpdt-custom-model-graph", component_property="figure"),
+        State(component_id="plot-custom-mhpdt-model-checklist", component_property="value"),
+        # local storages:
+        State(component_id="dataframe-json-storage", component_property="data"),
+        State(component_id="mhpdt-calibration-period-storage", component_property="data"),
+        # model input values:
+        State(component_id="mhpdt-threshold-input", component_property="value"),
+        State(component_id="mhpdt-min-cycle-time-input", component_property="value"),
+        State(component_id="mhpdt-andon-uptime-threshold-input", component_property="value"),
+        State(component_id="mhpdt-uptime-filter-input", component_property="value"),
+        State(component_id="mhpdt-downtime-filter-input", component_property="value"),
+        State(component_id="mhpdt-filter-order-radioitems", component_property="value"),
+        State(component_id="mhpdt-period-to-use-radioitems", component_property="value"),
+    ],
+)
+def update_custom_model_chart(n_clicks_plot, n_clicks_clear, fig, checklist, df_json, period_json, *model_param_args):
+
+    if n_clicks_plot is None and n_clicks_clear is None:
+        raise PreventUpdate
+    else:
+        ctx = dash.callback_context
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if button_id == "clear-mhpdt-custom-model-chart-button":
+        n_clicks_plot = 0
+        return go.Figure(), "Custom model chart cleared!", n_clicks_plot
+
+    if button_id == "plot-custom-mhpdt-model-button":
+
+        if fig is None:
+            fig = go.Figure()
+            add_feature_data = True
+        elif len(checklist) > 0:
+            if len(fig["data"]) == 0:
+                add_feature_data = True
+            else:
+                add_feature_data = False
+
+            fig = go.Figure(fig)
+
+        else:
+            fig = go.Figure()
+            add_feature_data = True
+
+        params = {
+            "model_params": {
+                "mhp_threshold": model_param_args[0],
+                "min_cycle_time": model_param_args[1],
+                "andon_uptime_threshold": model_param_args[2],
+                "up_filter_size": model_param_args[3],
+                "down_filter_size": model_param_args[4],
+                "first_filter": model_param_args[5],
+            },
+            "period": model_param_args[6],
+        }
+        df = dash_utils.load_df_from_local_storage(df_json)
+        if params["period"] == "calibration":
+            # filter df:
+            start_date_str = period_json["start"]
+            end_date_str = period_json["stop"]
+            start_date = pd.to_datetime(start_date_str)
+            end_date = pd.to_datetime(end_date_str)
+            df = df[(df.index > start_date) & (df.index < end_date)]
+
+        fig = charts.generate_custom_mhpdt_chart(fig, df, params, n_clicks_plot, add_feature_data)
+
+        error_div = None
+
+        return fig, error_div, n_clicks_plot
+
+
+@app.callback(
+    [
+        Output(component_id="mhpdt-threshold-input", component_property="value"),
+        Output(component_id="mhpdt-min-cycle-time-input", component_property="value"),
+        Output(component_id="mhpdt-andon-uptime-threshold-input", component_property="value"),
+        Output(component_id="mhpdt-uptime-filter-input", component_property="value"),
+        Output(component_id="mhpdt-downtime-filter-input", component_property="value"),
+        Output(component_id="mhpdt-filter-order-radioitems", component_property="value"),
+        Output(component_id="mhpdt-period-to-use-radioitems", component_property="value"),
+    ],
+    [
+        Input(component_id="reset-mhpdt-custom-model-default-params-button", component_property="n_clicks"),
+        Input(component_id="load-calibration-params-to-mhpdt-custom-model-button", component_property="n_clicks"),
+        State(component_id="mhpdt-calibration-param-storage", component_property="data"),
+    ],
+)
+def update_mhpdt_param_inputs(n_clicks_reset, n_clicks_load, params_json):
+
+    if n_clicks_reset is None and n_clicks_load is None:
+        raise PreventUpdate
+    else:
+        ctx = dash.callback_context
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if button_id == "reset-mhpdt-custom-model-default-params-button":
+        return 0.1, 0, 5, 0, 0, "down", "full"
+
+    if button_id == "load-calibration-params-to-mhpdt-custom-model-button":
+        if params_json is None:
+            raise PreventUpdate
+
+        if "calibration_score" in params_json["children"]:
+
+            # convert calibration params:
+            params_json_format = params_json["children"].replace("'", '"')
+            params = json.loads(params_json_format)
+
+            thr = params["model_params"]["mhp_threshold"]
+            min_cyc = params["model_params"]["min_cycle_time"]
+            andon_thr = params["model_params"]["andon_uptime_threshold"]
+            up_filt = params["model_params"]["up_filter_size"]
+            down_filt = params["model_params"]["down_filter_size"]
+
+        return thr, min_cyc, andon_thr, up_filt, down_filt, "down", "calibration"
 
 
 if __name__ == "__main__":
