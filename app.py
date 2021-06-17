@@ -126,7 +126,7 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
                 end_date_str = df.index[-1].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
 
             relayoutData = {"xaxis.range": [start_date_str, end_date_str]}
-    else: 
+    else:
         fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
 
     return fig, relayoutData, fail_div_msg
@@ -194,7 +194,7 @@ def click_button_call_mhpdt_calibration(n_clicks, json_data, calibration_period_
 
     azure_func_url = os.environ.get("AZURE_FUNC_URL", "http://localhost:7071")
 
-    calibration_result=None
+    calibration_result = None
     try:
         r = requests.post(
             f"{azure_func_url}/api/MHPDT_cross_validation",
