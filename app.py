@@ -126,7 +126,7 @@ def update_rangeselector_chart(json_data, n_clicks, start_date_str, end_date_str
                 end_date_str = df.index[-1].strftime(format="%Y-%m-%dT%H:%M:%S.%f")
 
             relayoutData = {"xaxis.range": [start_date_str, end_date_str]}
-    else:
+    else: 
         fig = charts.generate_chart_with_rangeselector(df, feature_name="mhp")
 
     return fig, relayoutData, fail_div_msg
