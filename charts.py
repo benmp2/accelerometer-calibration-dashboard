@@ -75,17 +75,18 @@ def generate_mhpdt_calibration_chart(df_calibration, params):
     tagged_states = hmm_tagging.generate_tagged_data(df_calibration_transient_dropped)
     prediction_df = mhpdt_cv.andon_prediction_with_filtering(df_calibration_transient_dropped, params)
 
-    calibration_score = mhpdt_cv.optimization_score(df_calibration_transient_dropped, params, tagged_states)
+    calibration_status, calibration_score = mhpdt_cv.optimization_score(df_calibration_transient_dropped, params, tagged_states)
     calibration_score = round(calibration_score * 100, 3)
-    print(f"{calibration_score}")
+    # print(f"{calibration_score}")
 
     fig = go.Figure()
     fig.add_scatter(x=prediction_df.index, y=prediction_df.mhp, name="mhp")
-    fig.add_scatter(x=tagged_states.index, y=tagged_states, mode="lines", name="tagged sequence")
+    # # For 2 state hmm labeling:
+    # fig.add_scatter(x=tagged_states.index, y=tagged_states, mode="lines", name="tagged sequence")
 
     # For 3 state hmm labeling:
-    # tagged_states = hmm_tagging.relabel_active_states(tagged_states)
-    # fig.add_scatter(x=tagged_states.index,y=tagged_states,mode='lines',name='tagged sequence relabeled')
+    tagged_states = hmm_tagging.relabel_active_states(tagged_states)
+    fig.add_scatter(x=tagged_states.index,y=tagged_states,mode='lines',name='tagged sequence relabeled')
 
     fig.add_scatter(
         x=prediction_df.index, y=prediction_df.state_filtered, mode="lines", line=dict(dash="dash"), name="mhpdt andon_states filtered"
